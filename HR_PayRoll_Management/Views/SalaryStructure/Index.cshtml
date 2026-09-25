@@ -1,0 +1,327 @@
+﻿@model IEnumerable<HR_PayRoll_Management.ViewModels.SalaryVM.SalaryStructureViewModel>
+
+@{
+    ViewBag.Title = "Salary Structure";
+}
+
+<div class="page-header d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1>Salary Structure</h1>
+        <p class="text-muted mb-0">
+            Manage employee salary structures and compensation details.
+        </p>
+    </div>
+
+    <a href="@Url.Action("Create", "SalaryStructure")" class="btn btn-primary">
+        <i class="fa-solid fa-plus me-2"></i> Create Salary Structure
+    </a>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-white py-3">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="position-relative w-50">
+                <i class="fa-solid fa-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+                <input type="text"
+                       id="salarySearch"
+                       class="form-control ps-5"
+                       placeholder="Search employee salary..." />
+            </div>
+
+            <div class="text-muted fw-semibold">
+                <i class="fa-solid fa-money-bill-wave me-2"></i>
+                @Model.Count() Salary Records
+            </div>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table align-middle mb-0" id="salaryTable">
+            <thead class="table-light">
+                <tr>
+                    <th>Employee</th>
+                    <th>Basic Salary</th>
+                    <th>Allowances</th>
+                    <th>Bonus</th>
+                    <th>Tax</th>
+                    <th>Effective Date</th>
+                    <th>Status</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="rounded-circle bg-primary-subtle text-primary d-flex justify-content-center align-items-center me-3"
+                                     style="width: 45px; height: 45px;">
+                                    <div class="rounded-circle overflow-hidden me-3"
+                                         style="width:45px;height:45px;">
+
+
+                                        <img src="@(string.IsNullOrEmpty(item.PhotoPath)
+                                                ? Url.Content("~/Content/Images/default-user.png")
+                                                : Url.Content(item.PhotoPath))" style="width:100%;height:100%;object-fit:cover;"alt="Employee Image" />
+
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="fw-semibold">
+                                        @item.EmployeeName
+                                    </div>
+                                    <small class="text-muted">
+                                        Employee ID: @item.EmployeeId
+                                    </small>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td>
+                            @item.BasicSalary.ToString("N2")
+                        </td>
+
+                        <td>
+                            @{
+                                var allowance = item.HouseRent + item.MedicalAllowance + item.TransportAllowance;
+                            }
+                            @allowance.ToString("N2")
+                        </td>
+
+                        <td>
+                            @item.BonusAmount.ToString("N2")
+                        </td>
+
+                        <td>
+                            @item.TaxPercentage %
+                        </td>
+
+                        <td>
+                            @item.EffectiveDate.ToString("dd MMM yyyy")
+                        </td>
+
+                        <td>
+                            @if (item.IsActive)
+                            {
+                                <span class="badge bg-success">Active</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Inactive</span>
+                            }
+                        </td>
+
+                        <td class="text-end">
+
+                            <div class="btn-group btn-group-sm">
+
+
+                                <a href="@Url.Action("Edit",
+                    "SalaryStructure",
+                    new { id = item.SalaryStructureId })"
+                                   class="btn btn-outline-primary"
+                                   title="Edit Salary">
+
+                                    <i class="fa-solid fa-pen"></i>
+
+                                </a>
+
+
+
+
+                                <button type="button"
+                                        class="btn btn-outline-danger delete-salary-btn"
+                                        data-id="@item.SalaryStructureId"
+                                        data-name="@item.EmployeeName">
+
+                                    <i class="fa-solid fa-trash"></i>
+
+                                </button>
+
+
+
+                            </div>
+
+
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5">
+            <i class="fa-solid fa-money-check-dollar fs-1 text-muted mb-3"></i>
+            <h5>No Salary Structure Found</h5>
+            <p class="text-muted">Create salary structure for employees.</p>
+            <a href="@Url.Action("Create", "SalaryStructure")" class="btn btn-primary">
+                <i class="fa-solid fa-plus me-2"></i> Create Salary Structure
+            </a>
+        </div>
+    }
+</div>
+
+<!--Delete modal-->
+<div class="modal fade"
+     id="deleteSalaryModal"
+     tabindex="-1">
+
+
+    <div class="modal-dialog modal-dialog-centered">
+
+
+        <div class="modal-content">
+
+
+            <div class="modal-header">
+
+
+                <h5 class="modal-title">
+
+                    <i class="fa-solid fa-triangle-exclamation text-danger me-2"></i>
+
+                    Confirm Delete
+
+                </h5>
+
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal">
+                </button>
+
+
+            </div>
+
+
+
+            <div class="modal-body">
+
+
+                <p class="text-secondary">
+
+                    Are you sure you want to delete salary structure for:
+
+                </p>
+
+
+
+                <h6 class="fw-bold"
+                    id="deleteEmployeeName">
+                </h6>
+
+
+
+                <div class="alert alert-warning mt-3">
+
+                    <i class="fa-solid fa-circle-info me-2"></i>
+
+                    This action cannot be undone.
+
+                </div>
+
+
+            </div>
+
+
+
+
+            <div class="modal-footer">
+
+
+                <button type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+
+                    Cancel
+
+                </button>
+
+
+
+                @using (Html.BeginForm(
+                    "Delete",
+                    "SalaryStructure",
+                    FormMethod.Post,
+                    new { id = "deleteSalaryForm" }))
+                {
+
+                    @Html.AntiForgeryToken()
+
+
+                    <input type="hidden"
+                           id="deleteSalaryId"
+                           name="id" />
+
+
+                    <button type="submit"
+                            class="btn btn-danger">
+
+
+                        <i class="fa-solid fa-trash me-2"></i>
+
+                        Delete
+
+
+                    </button>
+
+                }
+
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+
+</div>
+
+@section scripts {
+    <script>
+                                $(document).ready(function () {
+                                    $("#salarySearch").on("keyup", function () {
+                                        var value = $(this).val().toLowerCase();
+
+                                        $("#salaryTable tbody tr").filter(function () {
+                                            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+                                        });
+                                    });
+                                });
+$(document).on(
+    "click",
+    ".delete-salary-btn",
+    function () {
+
+
+        let id =
+            $(this).data("id");
+
+
+        let name =
+            $(this).data("name");
+
+
+
+        $("#deleteSalaryId")
+            .val(id);
+
+
+
+        $("#deleteEmployeeName")
+            .text(name);
+
+
+
+        $("#deleteSalaryModal")
+            .modal("show");
+
+
+    });
+    </script>
+}

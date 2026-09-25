@@ -1,0 +1,66 @@
+@model IEnumerable<HR_PayRoll_Management.ViewModels.SalarySlipListViewModel>
+
+@{
+    ViewBag.Title = "Salary Slips";
+}
+
+<div class="page-header mb-4 d-flex justify-content-between align-items-center">
+    <div>
+        <h1>Salary Slips</h1>
+        <p class="text-muted mb-0">Employee salary details for payroll cycle.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="@Url.Action("ExportCycleExcel", "Payroll", new { id = ViewBag.PayrollCycleId })" class="btn btn-success">
+            <i class="fa-solid fa-file-excel"></i> Export Excel
+        </a>
+        <a href="@Url.Action("ExportCycleCsv", "Payroll", new { id = ViewBag.PayrollCycleId })" class="btn btn-secondary">
+            <i class="fa-solid fa-file-csv"></i> Export CSV
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Employee</th>
+                        <th>Department</th>
+                        <th>Gross Salary</th>
+                        <th>Deduction</th>
+                        <th>Net Salary</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="ms-3">
+                                        <p class="fw-bold mb-1">@item.EmployeeName</p>
+                                        <p class="text-muted mb-0"><small>ID: @item.EmployeeId</small></p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border">@item.DepartmentName</span>
+                            </td>
+                            <td>@item.GrossSalary.ToString("N2")</td>
+                            <td class="text-danger">-@item.TotalDeduction.ToString("N2")</td>
+                            <td><strong>@item.NetSalary.ToString("N2")</strong></td>
+                            <td>
+                                <a href="@Url.Action("Payslip", "Payroll", new { id = item.SalarySlipId })"
+                                   class="btn btn-sm btn-primary">
+                                    <i class="fa-solid fa-file-invoice"></i> View Payslip
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

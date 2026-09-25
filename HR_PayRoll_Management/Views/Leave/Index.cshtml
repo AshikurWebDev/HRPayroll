@@ -1,0 +1,126 @@
+@model IEnumerable<HR_PayRoll_Management.ViewModels.LeaveVM.LeaveViewModel>
+
+@{
+    ViewBag.Title = "Leave Management";
+}
+
+<div class="page-header">
+    <div>
+        <h1>Leave Management</h1>
+        <p>Manage employee leave records.</p>
+    </div>
+
+    <a href="@Url.Action("Create", "Leave")" class="btn btn-primary">
+        <i class="fa-solid fa-plus"></i> Apply Leave
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Employee</th>
+                        <th>Leave Type</th>
+                        <th>From</th>
+                        <th>To</th>
+                        <th>Days</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.EmployeeName</td>
+                            <td>@item.LeaveType</td>
+                            <td>@item.FromDate.ToString("dd MMM yyyy")</td>
+                            <td>@item.ToDate.ToString("dd MMM yyyy")</td>
+                            <td>@item.TotalDays</td>
+                            <td>@item.Status</td>
+                            <td>
+                                @if (item.Status == "Pending")
+                                {
+                                    if (User.IsInRole("Admin") || User.IsInRole("HR Manager") || User.IsInRole("HR Officer") || User.IsInRole("Manager") || User.IsInRole("Employee"))
+                                    {
+                                        <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteLeaveModal-@item.LeaveId">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    }
+                                }
+                                @if (User.IsInRole("Admin") || User.IsInRole("HR Manager") || User.IsInRole("Manager"))
+                                {
+                                    if (item.Status == "Pending")
+                                    {
+                                        <button class="btn btn-sm btn-outline-success approve-btn" data-id="@item.LeaveId"><i class="fa-solid fa-check"></i></button>
+                                        <button class="btn btn-sm btn-outline-danger reject-btn" data-id="@item.LeaveId"><i class="fa-solid fa-xmark"></i></button>
+                                    }
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@if (Model != null)
+{
+    foreach (var item in Model)
+    {
+        <!-- Delete Confirmation Modal -->
+        <div class="modal fade" id="deleteLeaveModal-@item.LeaveId" tabindex="-1" aria-labelledby="deleteLeaveModalLabel-@item.LeaveId" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteLeaveModalLabel-@item.LeaveId">Confirm Delete</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Are you sure you want to delete the leave record for <strong>@item.EmployeeName</strong> from @item.FromDate.ToString("dd MMM") to @item.ToDate.ToString("dd MMM")?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        @using (Html.BeginForm("Delete", "Leave", new { id = item.LeaveId }, FormMethod.Post))
+                        {
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-danger">Yes, Delete</button>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}@section Scripts {
+<script>
+    $(document).ready(function () {
+        $('.approve-btn').click(function () {
+            var id = $(this).data('id');
+            if(confirm('Are you sure you want to approve this leave?')) {
+                $.post('@Url.Action("Approve", "Leave")', { id: id }, function (data) {
+                    if(data.success) {
+                        location.reload();
+                    } else {
+                        alert('Error approving leave');
+                    }
+                });
+            }
+        });
+        $('.reject-btn').click(function () {
+            var id = $(this).data('id');
+            if(confirm('Are you sure you want to reject this leave?')) {
+                $.post('@Url.Action("Reject", "Leave")', { id: id }, function (data) {
+                    if(data.success) {
+                        location.reload();
+                    } else {
+                        alert('Error rejecting leave');
+                    }
+                });
+            }
+        });
+    });
+</script>
+}

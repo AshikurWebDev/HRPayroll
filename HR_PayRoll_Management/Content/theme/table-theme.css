@@ -1,0 +1,71 @@
+﻿.employee-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+
+
+
+.action-icon {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    text-decoration: none;
+    font-size: 14px;
+    transition: .25s;
+}
+
+
+
+
+.view-action {
+    background: #e0f2fe;
+    color: #0284c7;
+}
+
+
+
+.edit-action {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+
+
+.delete-action {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+
+
+
+.action-icon:hover {
+    transform: translateY(-3px);
+}
+
+
+
+.view-action:hover {
+    background: #0284c7;
+    color: white;
+}
+
+
+
+.edit-action:hover {
+    background: #d97706;
+    color: white;
+}
+
+
+
+.delete-action:hover {
+    background: #dc2626;
+    color: white;
+}

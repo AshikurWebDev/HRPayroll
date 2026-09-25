@@ -1,0 +1,42 @@
+@model HR_PayRoll_Management.Models.User
+
+@{
+    ViewBag.Title = "Edit User";
+}
+
+<div class="page-header mb-4">
+    <h1>Edit User</h1>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        @using (Html.BeginForm()) {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(m => m.UserId)
+            @Html.HiddenFor(m => m.EmployeeId)
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    @Html.LabelFor(m => m.Username, new { @class = "form-label" })
+                    @Html.TextBoxFor(m => m.Username, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(m => m.Username, "", new { @class = "text-danger" })
+                </div>
+                <div class="col-md-6 mb-3">
+                    @Html.LabelFor(m => m.PasswordHash, "New Password (leave blank to keep current)", new { @class = "form-label" })
+                    @Html.PasswordFor(m => m.PasswordHash, new { @class = "form-control", @value = "" })
+                    @Html.ValidationMessageFor(m => m.PasswordHash, "", new { @class = "text-danger" })
+                </div>
+                <div class="col-md-6 mb-3">
+                    @Html.LabelFor(m => m.RoleId, "Role", new { @class = "form-label"})
+                    @Html.DropDownList("RoleId", null, "Select Role", new { @class = "form-select" })
+                    @Html.ValidationMessageFor(m => m.RoleId, "", new { @class = "text-danger" })
+                </div>
+                
+                <div class="col-md-12 mt-3">
+                    <button type="submit" class="btn btn-primary">Update User</button>
+                    <a href="@Url.Action("Index")" class="btn btn-secondary">Cancel</a>
+                </div>
+            </div>
+        }
+    </div>
+</div>

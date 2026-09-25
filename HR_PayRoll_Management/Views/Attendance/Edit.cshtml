@@ -1,0 +1,201 @@
+﻿@model HR_PayRoll_Management.ViewModels.AttendanceVM.AttendanceEditViewModel
+
+@{
+    ViewBag.Title = "Edit Attendance";
+}
+
+
+@section styles {
+
+    <link href="~/Content/Attendance.css" rel="stylesheet" />
+
+}
+
+
+<div class="page-header">
+
+    <div>
+
+        <h1>
+            Edit Attendance
+        </h1>
+
+        <p>
+            Update employee attendance information.
+        </p>
+
+    </div>
+
+
+    <a href="@Url.Action("Management","Attendance")"
+       class="btn btn-outline-secondary">
+
+        <i class="fa-solid fa-arrow-left"></i>
+
+        Back
+
+    </a>
+
+</div>
+
+
+
+
+<div class="card">
+
+    <div class="card-body">
+
+
+        @using (Html.BeginForm("Edit",
+                               "Attendance",
+                               FormMethod.Post,
+                               new { }))
+        {
+
+            @Html.AntiForgeryToken()
+
+            @Html.HiddenFor(x => x.AttendanceId)
+
+            @Html.HiddenFor(x => x.EmployeeId)
+
+
+
+            <div class="row">
+
+
+                <div class="col-md-6 mb-3">
+
+                    <label class="form-label">
+                        Attendance Date
+                    </label>
+
+
+                    @Html.TextBoxFor(
+                        x => x.AttendanceDate,
+                        "{0:yyyy-MM-dd}",
+                        new
+                        {
+                            @class = "form-control",
+                            type = "date"
+                        })
+
+                </div>
+
+
+
+
+                <div class="col-md-6 mb-3">
+
+                    <label class="form-label">
+                        Status
+                    </label>
+
+
+                    @Html.DropDownListFor(
+                        x => x.Status,
+                        new SelectList(
+                            new[]
+                            {
+                                "Present",
+                                "Absent",
+                                "Leave",
+                                "Half Day"
+                            },
+                            Model.Status),
+                        "Select Status",
+                        new
+                        {
+                            @class = "form-select"
+                        })
+
+                </div>
+
+
+
+                <div class="col-md-6 mb-3">
+
+                    <label class="form-label">
+                        Entry Time
+                    </label>
+
+
+                    @Html.TextBoxFor(
+                        x => x.EntryTime,
+                        "{0:hh\\:mm}",
+                        new
+                        {
+                            @class = "form-control",
+                            type = "time"
+                        })
+
+                </div>
+
+
+
+
+                <div class="col-md-6 mb-3">
+
+                    <label class="form-label">
+                        Exit Time
+                    </label>
+
+
+                    @Html.TextBoxFor(
+                        x => x.ExitTime,
+                        "{0:hh\\:mm}",
+                        new
+                        {
+                            @class = "form-control",
+                            type = "time"
+                        })
+
+                </div>
+
+
+
+
+                <div class="col-md-12 mb-3">
+
+                    <label class="form-label">
+                        Remarks
+                    </label>
+
+
+                    @Html.TextAreaFor(
+                        x => x.Remarks,
+                        new
+                        {
+                            @class = "form-control",
+                            rows = 4,
+                            placeholder = "Remarks"
+                        })
+
+                </div>
+
+
+            </div>
+
+
+
+            <div class="text-end">
+
+
+                <button type="submit"
+                        class="btn btn-primary">
+
+                    <i class="fa-solid fa-save"></i>
+
+                    Update Attendance
+
+                </button>
+
+
+            </div>
+
+
+        }
+
+
+    </div>
+
+</div>

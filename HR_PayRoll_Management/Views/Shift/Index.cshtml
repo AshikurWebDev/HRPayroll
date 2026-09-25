@@ -1,0 +1,74 @@
+@model IEnumerable<HR_PayRoll_Management.Models.Shift>
+
+@{
+    ViewBag.Title = "Shifts";
+}
+
+<div class="page-header d-flex justify-content-between align-items-center mb-4">
+    <h1>Manage Shifts</h1>
+    <a href="@Url.Action("Create", "Shift")" class="btn btn-primary">
+        <i class="fa-solid fa-plus"></i> Add New Shift
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Shift Name</th>
+                        <th>Start Time</th>
+                        <th>End Time</th>
+                        <th>Late Allowance</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model) {
+                        <tr>
+                            <td>@item.ShiftName</td>
+                            <td>@item.StartTime.ToString(@"hh\:mm")</td>
+                            <td>@item.EndTime.ToString(@"hh\:mm")</td>
+                            <td>
+                                @item.LateAllowanceMinutes min
+                            </td>
+                            <td>
+                                <a href="@Url.Action("Edit", "Shift", new { id = item.ShiftId })" class="btn btn-sm btn-outline-info">
+                                    <i class="fa-solid fa-edit"></i> Edit
+                                </a>
+                                <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteShiftModal-@item.ShiftId">
+                                    <i class="fa-solid fa-trash"></i> Delete
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@foreach (var item in Model) {
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteShiftModal-@item.ShiftId" tabindex="-1" aria-labelledby="deleteShiftModalLabel-@item.ShiftId" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteShiftModalLabel-@item.ShiftId">Confirm Delete</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete the shift <strong>@item.ShiftName</strong>?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    @using (Html.BeginForm("Delete", "Shift", new { id = item.ShiftId }, FormMethod.Post)) {
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-danger">Yes, Delete</button>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}

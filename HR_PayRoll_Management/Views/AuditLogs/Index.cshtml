@@ -1,0 +1,52 @@
+@model IEnumerable<HR_PayRoll_Management.Models.AuditLog>
+@{
+    ViewBag.Title = "Audit Logs";
+}
+
+<div class="page-header mb-4">
+    <h1>System Audit Logs</h1>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Date</th>
+                        <th>User</th>
+                        <th>Action</th>
+                        <th>Module</th>
+                        <th>Changes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var log in Model)
+                    {
+                        <tr>
+                            <td>@log.ActionDate.ToString("MMM dd yyyy, HH:mm:ss")</td>
+                            <td><span class="badge bg-primary">@log.Username</span></td>
+                            <td>
+                                @if(log.Action == "Create") { <span class="badge bg-success">@log.Action</span> }
+                                else if(log.Action == "Update") { <span class="badge bg-warning text-dark">@log.Action</span> }
+                                else if(log.Action == "Delete") { <span class="badge bg-danger">@log.Action</span> }
+                                else { <span class="badge bg-secondary">@log.Action</span> }
+                            </td>
+                            <td class="fw-bold">@log.Module</td>
+                            <td style="max-width: 300px; font-size: 0.8rem;">
+                                @if(!string.IsNullOrEmpty(log.OldValue))
+                                {
+                                    <div class="text-danger text-truncate" title="@log.OldValue"><del>@log.OldValue</del></div>
+                                }
+                                @if(!string.IsNullOrEmpty(log.NewValue))
+                                {
+                                    <div class="text-success text-truncate" title="@log.NewValue">@log.NewValue</div>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

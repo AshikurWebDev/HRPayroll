@@ -1,0 +1,39 @@
+@model IEnumerable<HR_PayRoll_Management.Models.User>
+
+@if (Model != null && Model.Any()) {
+    foreach (var item in Model) {
+        <tr class="user-row">
+            <td>
+                <div class="d-flex align-items-center">
+                    @if (item.Employee != null && !string.IsNullOrEmpty(item.Employee.PhotoPath))
+                    {
+                        <img src="@Url.Content(item.Employee.PhotoPath)" alt="Profile" class="rounded-circle me-3" style="width: 40px; height: 40px; object-fit: cover;" />
+                    }
+                    else
+                    {
+                        <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; font-size: 16px;">
+                            @item.Username.Substring(0, 1).ToUpper()
+                        </div>
+                    }
+                    <div>
+                        <span class="user-name fw-bold">@item.Username</span>
+                    </div>
+                </div>
+            </td>
+            <td><span class="badge bg-secondary">@(item.Role != null ? item.Role.RoleName : "No Role")</span></td>
+            <td>@(item.Employee != null ? item.Employee.FullName : "Not mapped")</td>
+            <td>
+                <a href="@Url.Action("Edit", "Users", new { id = item.UserId })" class="btn btn-sm btn-outline-info">
+                    <i class="fa-solid fa-edit"></i> Edit
+                </a>
+                <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteUserModal-@item.UserId">
+                    <i class="fa-solid fa-trash"></i> Delete
+                </button>
+            </td>
+        </tr>
+    }
+} else {
+    <tr>
+        <td colspan="4" class="text-center">No users found.</td>
+    </tr>
+}

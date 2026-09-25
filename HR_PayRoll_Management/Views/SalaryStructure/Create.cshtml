@@ -1,0 +1,406 @@
+﻿@model HR_PayRoll_Management.ViewModels.SalaryVM.SalaryStructureMasterVM
+
+@{
+    ViewBag.Title = "Create Salary Structure";
+}
+
+@using (Html.BeginForm(
+    "Create",
+    "SalaryStructure",
+    FormMethod.Post,
+    new { id = "salaryForm" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="page-header d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1>Create Salary Structure</h1>
+            <p class="text-muted mb-0">
+                Assign salary structures to multiple employees.
+            </p>
+        </div>
+
+        <a href="@Url.Action("Index", "SalaryStructure")" class="btn btn-secondary">
+            <i class="fa-solid fa-arrow-left me-2"></i> Back
+        </a>
+    </div>
+
+    <!-- Filter Card: Department & Designation -->
+    <div class="card shadow-sm p-4 mb-4">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label fw-semibold">Department</label>
+                <select id="DepartmentId" class="form-select">
+                    <option value="">Select Department</option>
+                    @if (ViewBag.Departments != null)
+                    {
+                        foreach (var item in ViewBag.Departments)
+                        {
+                            <option value="@item.Value">@item.Text</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label fw-semibold">Designation</label>
+                <select id="DesignationId" class="form-select" disabled>
+                    <option value="">Select Designation</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Employee Container -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">
+                <i class="fa-solid fa-users me-2"></i> Available Employees
+            </h5>
+        </div>
+
+        <div class="card-body">
+            <div class="row" id="employeeContainer"></div>
+        </div>
+    </div>
+
+    <!-- Temporary Salary Table -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">
+                <i class="fa-solid fa-money-check-dollar me-2"></i> Selected Salary Structures
+            </h5>
+        </div>
+
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered align-middle" id="salaryTempTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Employee</th>
+                            <th>Basic</th>
+                            <th>House Rent</th>
+                            <th>Medical</th>
+                            <th>Transport</th>
+                            <th>Bonus</th>
+                            <th>Tax %</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <input type="hidden" id="SalaryStructuresJson" name="SalaryStructuresJson" />
+
+    <div class="text-end mb-4">
+        <button type="button" class="btn btn-success" id="saveSalaryBtn">
+            <i class="fa-solid fa-save me-2"></i> Save All Salary
+        </button>
+    </div>
+
+    <!-- Salary Modal -->
+    <div class="modal fade" id="salaryModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fa-solid fa-money-check-dollar me-2"></i> Add Salary Structure
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <input type="hidden" id="EmployeeId" />
+
+                    <!-- Employee Info -->
+                    <div class="d-flex align-items-center mb-4">
+                        <img id="employeeImage"
+                             src="/Content/Images/default-user.png"
+                             class="rounded-circle me-3"
+                             style="width: 70px; height: 70px; object-fit: cover;" />
+                        <div>
+                            <h5 id="employeeName" class="mb-1 fw-bold"></h5>
+                            <span class="text-muted">Salary Information</span>
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Basic Salary</label>
+                            <input type="number" id="BasicSalary" class="form-control" value="0" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">House Rent</label>
+                            <input type="number" id="HouseRent" class="form-control" value="0" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Medical Allowance</label>
+                            <input type="number" id="MedicalAllowance" class="form-control" value="0" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Transport Allowance</label>
+                            <input type="number" id="TransportAllowance" class="form-control" value="0" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Bonus Amount</label>
+                            <input type="number" id="BonusAmount" class="form-control" value="0" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Tax Percentage</label>
+                            <input type="number" id="TaxPercentage" class="form-control" value="0" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+                    <button type="button" class="btn btn-primary" id="addSalaryToList">
+                        <i class="fa-solid fa-plus me-2"></i> Add Salary
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+            let salaryList = [];
+            let editIndex = -1;
+
+            // ================================
+            // Department -> Designation AJAX
+            // ================================
+            $("#DepartmentId").change(function () {
+                let departmentId = $(this).val();
+                let designation = $("#DesignationId");
+
+                designation.empty();
+                designation.append('<option value="">Select Designation</option>');
+                $("#employeeContainer").empty();
+
+                if (!departmentId) {
+                    designation.prop("disabled", true);
+                    return;
+                }
+
+                $.ajax({
+                    url: '@Url.Action("GetDesignationsByDepartment", "SalaryStructure")',
+                    type: "GET",
+                    data: {
+                        departmentId: departmentId
+                    },
+                    success: function (data) {
+                        $.each(data, function (i, item) {
+                            designation.append(
+                                $("<option></option>")
+                                    .val(item.id)
+                                    .text(item.name)
+                            );
+                        });
+
+                        designation.prop("disabled", false);
+                    },
+                    error: function () {
+                        alert("Unable to load designations.");
+                    }
+                });
+            });
+
+            // ================================
+            // Designation -> Employee AJAX
+            // ================================
+            $("#DesignationId").change(function () {
+                let departmentId = $("#DepartmentId").val();
+                let designationId = $(this).val();
+                let container = $("#employeeContainer");
+
+                container.empty();
+
+                if (!departmentId || !designationId) {
+                    return;
+                }
+
+                $.ajax({
+                    url: '@Url.Action("GetEmployees", "SalaryStructure")',
+                    type: "GET",
+                    data: {
+                        departmentId: departmentId,
+                        designationId: designationId
+                    },
+                    success: function (data) {
+                        if (data.length === 0) {
+                            container.html(`
+                                <div class="text-center text-muted py-4">
+                                    No employees found.
+                                </div>
+                            `);
+                            return;
+                        }
+
+                        $.each(data, function (i, item) {
+                            container.append(`
+                                <div class="col-md-4 mb-3">
+                                    <div class="card shadow-sm p-3 h-100">
+                                        <div class="d-flex align-items-center">
+                                            <img src="${item.image}"
+                                                 class="rounded-circle me-3"
+                                                 style="width: 60px; height: 60px; object-fit: cover;" />
+                                            <div>
+                                                <h6 class="fw-bold mb-2">${item.name}</h6>
+                                                <button type="button"
+                                                        class="btn btn-sm btn-primary add-salary-btn"
+                                                        data-id="${item.id}"
+                                                        data-name="${item.name}"
+                                                        data-image="${item.image}">
+                                                    <i class="fa-solid fa-plus me-1"></i> Add Salary
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `);
+                        });
+                    }
+                });
+            });
+
+            // ================================
+            // Open Salary Modal
+            // ================================
+            $(document).on("click", ".add-salary-btn", function () {
+                editIndex = -1;
+
+                $("#addSalaryToList").html('<i class="fa-solid fa-plus me-2"></i>Add Salary');
+                $("#EmployeeId").val($(this).data("id"));
+                $("#employeeName").text($(this).data("name"));
+                $("#employeeImage").attr("src", $(this).data("image"));
+
+                $("#BasicSalary").val(0);
+                $("#HouseRent").val(0);
+                $("#MedicalAllowance").val(0);
+                $("#TransportAllowance").val(0);
+                $("#BonusAmount").val(0);
+                $("#TaxPercentage").val(0);
+
+                $("#salaryModal").modal("show");
+            });
+
+            // ================================
+            // Add / Update Salary
+            // ================================
+            $("#addSalaryToList").click(function () {
+                let salary = {
+                    EmployeeId: $("#EmployeeId").val(),
+                    EmployeeName: $("#employeeName").text(),
+                    BasicSalary: $("#BasicSalary").val(),
+                    HouseRent: $("#HouseRent").val(),
+                    MedicalAllowance: $("#MedicalAllowance").val(),
+                    TransportAllowance: $("#TransportAllowance").val(),
+                    BonusAmount: $("#BonusAmount").val(),
+                    TaxPercentage: $("#TaxPercentage").val(),
+                    EffectiveDate: new Date().toISOString(),
+                    IsActive: true
+                };
+
+                if (editIndex === -1) {
+                    salaryList.push(salary);
+                } else {
+                    salaryList[editIndex] = salary;
+                    editIndex = -1;
+                }
+
+                renderSalaryTable();
+                $("#salaryModal").modal("hide");
+            });
+
+            // ================================
+            // Render Temporary Table
+            // ================================
+            function renderSalaryTable() {
+                let tbody = $("#salaryTempTable tbody");
+                tbody.empty();
+
+                $.each(salaryList, function (index, item) {
+                    tbody.append(`
+                        <tr>
+                            <td>${item.EmployeeName}</td>
+                            <td>${item.BasicSalary}</td>
+                            <td>${item.HouseRent}</td>
+                            <td>${item.MedicalAllowance}</td>
+                            <td>${item.TransportAllowance}</td>
+                            <td>${item.BonusAmount}</td>
+                            <td>${item.TaxPercentage}</td>
+                            <td>
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-primary edit-salary"
+                                        data-index="${index}">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-danger remove-salary"
+                                        data-index="${index}">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `);
+                });
+            }
+
+            // ================================
+            // Edit Salary
+            // ================================
+            $(document).on("click", ".edit-salary", function () {
+                editIndex = $(this).data("index");
+                let item = salaryList[editIndex];
+
+                $("#EmployeeId").val(item.EmployeeId);
+                $("#employeeName").text(item.EmployeeName);
+                $("#BasicSalary").val(item.BasicSalary);
+                $("#HouseRent").val(item.HouseRent);
+                $("#MedicalAllowance").val(item.MedicalAllowance);
+                $("#TransportAllowance").val(item.TransportAllowance);
+                $("#BonusAmount").val(item.BonusAmount);
+                $("#TaxPercentage").val(item.TaxPercentage);
+
+                $("#addSalaryToList").html('<i class="fa-solid fa-save me-2"></i>Update Salary');
+                $("#salaryModal").modal("show");
+            });
+
+            // ================================
+            // Delete Salary
+            // ================================
+            $(document).on("click", ".remove-salary", function () {
+                let index = $(this).data("index");
+                salaryList.splice(index, 1);
+                renderSalaryTable();
+            });
+
+            // ================================
+            // Final Save
+            // ================================
+            $("#saveSalaryBtn").click(function () {
+                if (salaryList.length === 0) {
+                    alert("Please add at least one salary structure.");
+                    return;
+                }
+
+                $("#SalaryStructuresJson").val(JSON.stringify(salaryList));
+                $("#salaryForm").submit();
+            });
+        });
+    </script>
+}

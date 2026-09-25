@@ -1,0 +1,182 @@
+=============================================================
+             EASYHR - SYSTEM DOCUMENTATION
+=============================================================
+
+This document contains the structural blueprints for the 
+HR Payroll Management System, including the Data Flow Diagram 
+(DFD), Entity-Relationship (ER) Diagram, and Presentation Slides.
+
+-------------------------------------------------------------
+1. DATA FLOW DIAGRAM (DFD) - TEXTUAL REPRESENTATION
+-------------------------------------------------------------
+
+[ LEVEL 0 - Context Diagram ]
+Entities: Employee, HR Admin, Manager
+Central Process: HR & Payroll System (0.0)
+
+Flows:
+- Employee -> (Login Credentials, Leave Requests, Attendance Punches) -> HR System
+- HR System -> (Payslips, Leave Status, Notifications) -> Employee
+- HR Admin -> (System Config, Payroll Triggers, Approvals) -> HR System
+- HR System -> (Detailed Reports, Audit Logs) -> HR Admin
+- Manager -> (Team Leave Approvals, Department Reports) -> HR System
+- HR System -> (Team Attendance Data) -> Manager
+
+
+[ LEVEL 1 - Core Processes ]
+Process 1.0: Authentication & Authorization
+- Input: Credentials
+- Output: Role-based Dashboard Access & Session Token
+
+Process 2.0: Employee Management
+- Input: Employee Details (Admin)
+- Data Store: D1 Employees Table, D2 Departments
+- Output: Employee Profile, Org Chart
+
+Process 3.0: Attendance Management
+- Input: Daily Check-in/out (Employee)
+- Data Store: D3 Attendance Table
+- Output: Late Marks, Working Hours, Monthly Attendance Status
+
+Process 4.0: Leave Management
+- Input: Leave Application (Employee)
+- Data Store: D4 Leaves Table, D5 Leave Balances
+- Output: Approval/Rejection (Manager/Admin), Updated Balance
+
+Process 5.0: Payroll Processing
+- Input: Trigger Payroll (Admin), D3 Attendance, D4 Leaves, D6 Salary Structure
+- Data Store: D7 Payroll Cycles, D8 Salary Slips
+- Output: Generated Salary Slips, PDF Exports, Net Salary Calculations
+
+Process 6.0: Reporting & Analytics
+- Input: Query params (Manager/Admin)
+- Output: Chart.js visualizations, Excel/PDF Exports
+
+
+-------------------------------------------------------------
+2. ENTITY-RELATIONSHIP (ER) DIAGRAM - TEXTUAL
+-------------------------------------------------------------
+
+[ENTITIES & ATTRIBUTES]
+
+1. Users
+   - UserId (PK)
+   - Username
+   - PasswordHash
+   - RoleId (FK)
+   - EmployeeId (FK, Nullable)
+
+2. Roles
+   - RoleId (PK)
+   - RoleName (Admin, HR Manager, Manager, Employee)
+
+3. Employees
+   - EmployeeId (PK)
+   - FullName, Email, Phone, Gender, Address
+   - JoiningDate, IsActive, PhotoPath
+   - DepartmentId (FK)
+   - DesignationId (FK)
+   - ManagerId (FK -> Employees.EmployeeId)
+
+4. Departments & Designations
+   - DepartmentId (PK) | DepartmentName
+   - DesignationId (PK) | Title
+
+5. Attendances
+   - AttendanceId (PK)
+   - EmployeeId (FK)
+   - AttendanceDate
+   - CheckInTime, CheckOutTime
+   - Status (Present, Absent, Leave, Half Day)
+   - IsLate (Boolean)
+
+6. Leaves
+   - LeaveId (PK)
+   - EmployeeId (FK)
+   - LeaveTypeId (FK)
+   - FromDate, ToDate, TotalDays
+   - Status (Pending, Approved, Rejected)
+   - Reason
+
+7. SalaryStructures
+   - SalaryStructureId (PK)
+   - EmployeeId (FK)
+   - BasicSalary, HouseRentAllowance, MedicalAllowance
+   - TransportAllowance, TaxDeduction
+
+8. PayrollCycles & SalarySlips
+   - PayrollCycleId (PK) | CycleMonth, CycleYear, Status
+   - SalarySlipId (PK) | EmployeeId (FK), PayrollCycleId (FK)
+   - GrossSalary, TotalDeduction, NetSalary, Status
+
+9. AuditLogs
+   - AuditLogId (PK)
+   - EntityName, Action (Insert, Update, Delete)
+   - Timestamp, UserId, ChangesSummary
+
+
+[RELATIONSHIPS]
+- Users (Many) to (1) Roles
+- Employees (1) to (1) Users (Optional)
+- Departments (1) to (Many) Employees
+- Employees (1) to (Many) Attendances
+- Employees (1) to (Many) Leaves
+- Employees (1) to (1) SalaryStructures
+- PayrollCycles (1) to (Many) SalarySlips
+- Employees (1) to (Many) SalarySlips
+
+
+-------------------------------------------------------------
+3. PRESENTATION SLIDES OUTLINE
+-------------------------------------------------------------
+
+SLIDE 1: Title Slide
+- Title: EasyHR - Modern HR & Payroll Management System
+- Subtitle: Streamlining Operations, Attendance, and Payroll
+- Presenter: [Your Name/Team]
+
+SLIDE 2: Problem Statement
+- Manual attendance tracking is prone to errors.
+- Disconnected systems for leaves, profiles, and payroll.
+- Lack of role-based security (Managers seeing all data).
+- Time-consuming month-end salary calculations.
+
+SLIDE 3: The Solution (EasyHR)
+- Centralized Employee Directory & Profiles.
+- Automated Daily Attendance & Monthly Leave calculations.
+- One-click Payroll Generation with automatic deductions.
+- Secure, Role-Based Access Control (Admin vs Manager vs Employee).
+
+SLIDE 4: Key Features
+- Dynamic Dashboards with Chart.js analytics.
+- Department-Level Security for Managers.
+- PDF & Excel Export capabilities for reporting.
+- Real-time Notification System & System Audit Trails.
+
+SLIDE 5: Technology Stack
+- Backend: ASP.NET MVC 5 (C#), .NET Framework 4.8
+- Database: MS SQL Server with Entity Framework Code-First
+- Architecture: Repository Pattern + Unit of Work + Service Layer
+- Frontend: HTML5, Bootstrap 5, AJAX, jQuery, FontAwesome
+- Libraries: iTextSharp (PDF), EPPlus (Excel), BCrypt (Security)
+
+SLIDE 6: System Architecture Overview
+- UI Layer: Razor Views (.cshtml) with dynamic role rendering.
+- Controller Layer: Handles HTTP requests and Authorizations.
+- Service Layer: Encapsulates business logic (Payroll math, Leave rules).
+- Data Layer: UnitOfWork + Generic Repositories for DB interactions.
+
+SLIDE 7: Security & Reliability
+- Passwords hashed using BCrypt.
+- Robust Audit Logging (every DB change is tracked).
+- Role-based UI stripping (Managers only see their team).
+
+SLIDE 8: Future Enhancements
+- Mobile Application for Geo-fenced check-ins.
+- AI-based attendance anomaly detection.
+- Self-service portal tax document generation.
+
+SLIDE 9: Q&A
+- Thank You!
+- Questions?
+=============================================================

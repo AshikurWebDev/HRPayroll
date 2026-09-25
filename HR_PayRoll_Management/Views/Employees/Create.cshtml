@@ -1,0 +1,168 @@
+@model HR_PayRoll_Management.ViewModels.EmployeeCreateViewModel
+
+@{
+    ViewBag.Title = "Create Employee";
+}
+
+@section styles {
+    <link href="~/Content/Employee.css" rel="stylesheet" />
+}
+
+<div class="page-header">
+    <div>
+        <h1>Create Employee</h1>
+        <p>Add a new employee profile and salary information.</p>
+    </div>
+
+    <a href="@Url.Action("Index","Employees")" class="btn btn-outline-secondary">
+        <i class="fa-solid fa-arrow-left me-2"></i>
+        Back
+    </a>
+</div>
+
+
+<div class="card employee-form-card">
+
+    <div class="card-header">
+        <i class="fa-solid fa-user-plus me-2"></i>
+        Employee Information
+    </div>
+
+
+    <div class="card-body">
+
+        @using (Html.BeginForm("Create", "Employees", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+            @Html.AntiForgeryToken()
+
+
+            <div class="row">
+
+                <div class="col-md-6 mb-3">
+                    @Html.LabelFor(x => x.FullName, new { @class = "form-label" })
+
+                    @Html.TextBoxFor(x => x.FullName, new
+                    {
+                        @class = "form-control",
+                        placeholder = "Enter full name"
+                    })
+
+                    @Html.ValidationMessageFor(x => x.FullName, "", new { @class = "text-danger" })
+                </div>
+
+
+                <div class="col-md-6 mb-3">
+                    @Html.LabelFor(x => x.EmailAddress, new { @class = "form-label" })
+
+                    @Html.TextBoxFor(x => x.EmailAddress, new
+                    {
+                        @class = "form-control",
+                        placeholder = "Enter email address"
+                    })
+
+                    @Html.ValidationMessageFor(x => x.EmailAddress, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    @Html.LabelFor(x => x.Phone, new { @class = "form-label" })
+                    @Html.TextBoxFor(x => x.Phone, new { @class = "form-control", placeholder = "Enter phone number" })
+                    @Html.ValidationMessageFor(x => x.Phone, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    @Html.LabelFor(x => x.Gender, new { @class = "form-label" })
+                    @Html.DropDownListFor(x => x.Gender, new SelectList(new[] { "Male", "Female", "Other" }), "-- Select Gender --", new { @class = "form-select" })
+                    @Html.ValidationMessageFor(x => x.Gender, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    @Html.LabelFor(x => x.DateOfBirth, "Date of Birth", new { @class = "form-label" })
+                    @Html.TextBoxFor(x => x.DateOfBirth, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
+                    @Html.ValidationMessageFor(x => x.DateOfBirth, "", new { @class = "text-danger" })
+                </div>
+
+
+                <div class="form-group mb-3">
+
+                    @Html.LabelFor(
+                        x => x.DesignationId)
+
+                    @Html.DropDownListFor(
+                        x => x.DesignationId,
+                        Model.Designations,
+                        "-- Select Designation --",
+                        new
+                        {
+                            @class = "form-control"
+                        })
+
+                </div>
+
+
+                <div class="col-md-6 mb-3">
+                    
+                    @Html.LabelFor(x => x.DepartmentId, new { @class = "form-label" })
+
+                    @Html.DropDownListFor(
+                        x => x.DepartmentId,
+                        Model.Departments,
+                        "-- Select Department --",
+                        new { @class = "form-select" }
+                    )
+
+                    @Html.ValidationMessageFor(x => x.DepartmentId, "", new { @class = "text-danger" })
+                </div>
+                <div class="col-md-6 mb-3">
+                    
+                    @Html.LabelFor(x => x.ShiftId, new { @class = "form-label" })
+
+                    @Html.DropDownListFor(
+                        x => x.ShiftId,
+                        Model.Shifts,
+                        "-- Select Department --",
+                        new { @class = "form-select" }
+                    )
+
+                    @Html.ValidationMessageFor(x => x.ShiftId, "", new { @class = "text-danger" })
+                </div>
+
+            </div>
+
+            <div class="employee-section-title">
+                Profile Photo
+            </div>
+
+
+            <div class="mb-3">
+
+                @Html.LabelFor(x => x.Photo, new { @class = "form-label" })
+
+                <input type="file"
+                       name="Photo"
+                       class="form-control" />
+
+                @Html.ValidationMessageFor(x => x.Photo, "", new { @class = "text-danger" })
+
+            </div>
+
+
+
+            <div class="form-actions">
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa-solid fa-check me-2"></i>
+                    Save Employee
+                </button>
+
+
+                <a href="@Url.Action("Index","Employees")"
+                   class="btn btn-light border">
+                    Cancel
+                </a>
+
+            </div>
+        }
+
+    </div>
+
+</div>

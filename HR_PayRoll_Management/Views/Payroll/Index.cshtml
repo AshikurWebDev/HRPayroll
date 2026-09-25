@@ -1,0 +1,157 @@
+@model IEnumerable<HR_PayRoll_Management.ViewModels.PayrollViewModel>
+
+@{
+    ViewBag.Title = "Payroll History";
+}
+
+<div class="page-header d-flex justify-content-between align-items-center mb-4">
+    <h1>Payroll History</h1>
+
+    <a href="@Url.Action("Generate", "Payroll")" class="btn btn-primary">
+        <i class="fa-solid fa-plus"></i> Generate Payroll
+    </a>
+</div>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Month</th>
+                        <th>Year</th>
+                        <th>Gross</th>
+                        <th>Net</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(item.CycleMonth)</td>
+                            <td>@item.CycleYear</td>
+                            <td>@item.TotalGrossAmount.ToString("N2")</td>
+                            <td>@item.TotalNetAmount.ToString("N2")</td>
+                            <td>
+                                <span class="badge bg-success">@item.Status</span>
+                            </td>
+                            <td>
+                                <a href="@Url.Action("Details","Payroll", new { id=item.PayrollCycleId })" class="btn btn-sm btn-outline-primary">
+                                    <i class="fa-solid fa-users"></i> Salary Slips
+                                </a>
+
+                                @if (item.Status == "Generated")
+                                {
+                                    using (Html.BeginForm("Approve", "Payroll", new { id = item.PayrollCycleId }, FormMethod.Post, new { @class = "d-inline" }))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-outline-warning">
+                                            <i class="fa-solid fa-check"></i> Approve
+                                        </button>
+                                    }
+                                }
+
+                                @if (item.Status == "Approved")
+                                {
+                                    using (Html.BeginForm("Pay", "Payroll", new { id = item.PayrollCycleId }, FormMethod.Post, new { @class = "d-inline" }))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-outline-success">
+                                            <i class="fa-solid fa-money-bill"></i> Pay
+                                        </button>
+                                    }
+                                }
+
+                                @if (item.Status != "Paid")
+                                {
+                                    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal-@item.PayrollCycleId">
+                                        <i class="fa-solid fa-trash"></i> Delete
+                                    </button>
+                                    
+                                    <button class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#editModal-@item.PayrollCycleId">
+                                        <i class="fa-solid fa-edit"></i> Edit
+                                    </button>
+                                }
+
+                                @if (item.Status == "Approved")
+                                {
+                                    using (Html.BeginForm("Pay", "Payroll", new { id = item.PayrollCycleId }, FormMethod.Post, new { @class = "d-inline" }))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-outline-success">
+                                            <i class="fa-solid fa-money-bill"></i> Pay
+                                        </button>
+                                    }
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@foreach (var item in Model)
+{
+    if (item.Status != "Paid")
+    {
+        <!-- Delete Modal -->
+        <div class="modal fade text-start" id="deleteModal-@item.PayrollCycleId" tabindex="-1" aria-labelledby="deleteModalLabel-@item.PayrollCycleId" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteModalLabel-@item.PayrollCycleId"><i class="fa-solid fa-triangle-exclamation"></i> Confirm Deletion</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-dark">
+                <p class="mb-0">Are you sure you want to permanently delete the payroll cycle for <strong>@System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(item.CycleMonth) @item.CycleYear</strong>?</p>
+                <p class="text-muted small mt-2"><i class="fa-solid fa-circle-info"></i> All associated salary slips will also be deleted.</p>
+                </div>
+                <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                @using (Html.BeginForm("Delete", "Payroll", new { id = item.PayrollCycleId }, FormMethod.Post, new { @class = "m-0" }))
+                {
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger">Yes, Delete</button>
+                }
+                </div>
+            </div>
+            </div>
+        </div>
+
+        <!-- Edit Modal -->
+        <div class="modal fade text-start" id="editModal-@item.PayrollCycleId" tabindex="-1" aria-labelledby="editModalLabel-@item.PayrollCycleId" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                <h5 class="modal-title" id="editModalLabel-@item.PayrollCycleId"><i class="fa-solid fa-info-circle"></i> Edit Information</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-dark">
+                <p>Payroll cycles are generated automatically based on Attendance and Leave records.</p>
+                <p class="mb-0 fw-bold">To edit this cycle:</p>
+                <ol>
+                    <li>Delete this current payroll cycle.</li>
+                    <li>Update the employee's attendance or leave records.</li>
+                    <li>Generate the payroll cycle again.</li>
+                </ol>
+                </div>
+                <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Got it</button>
+                </div>
+            </div>
+            </div>
+        </div>
+    }
+}

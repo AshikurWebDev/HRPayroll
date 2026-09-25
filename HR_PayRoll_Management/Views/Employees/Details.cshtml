@@ -1,0 +1,464 @@
+﻿@model HR_PayRoll_Management.ViewModels.EmployeeViewModel
+
+@{
+    ViewBag.Title = "Employee Details";
+}
+
+@section styles {
+    <link href="~/Content/Employee.css" rel="stylesheet" />
+}
+
+<div class="page-header">
+    <div>
+        <h1>Employee Details</h1>
+        <p>View employee profile and salary information.</p>
+    </div>
+
+    @if (User.IsInRole("Admin") || User.IsInRole("HR Manager") || User.IsInRole("HR Officer")) {
+    <a href="@Url.Action("Index","Employees")" class="btn btn-outline-secondary">
+        <i class="fa-solid fa-arrow-left me-2"></i> Back
+    </a>
+}
+</div>
+
+
+<div class="employee-profile-card card">
+
+    <div class="employee-profile-header">
+
+        <div class="employee-profile-image">
+
+            @if (!string.IsNullOrEmpty(Model.PhotoPath))
+            {
+                <img src="@Url.Content(Model.PhotoPath)"
+                     alt="@Model.FullName"
+                     class="profile-avatar" />
+            }
+            else
+            {
+                <div class="profile-avatar profile-avatar-default">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+            }
+
+        </div>
+
+
+        <div class="employee-profile-info">
+
+            <h2>
+                @Model.FullName
+            </h2>
+
+            <p>
+                @Model.DesignationName
+            </p>
+
+            <span class="employee-status">
+                Active Employee
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <div class="card-body">
+
+        <ul class="nav nav-tabs employee-tabs" role="tablist">
+
+            <li class="nav-item">
+                <button class="nav-link active"
+                        data-bs-toggle="tab"
+                        data-bs-target="#profile">
+                    Profile
+                </button>
+            </li>
+
+
+            <li class="nav-item">
+                <button class="nav-link"
+                        data-bs-toggle="tab"
+                        data-bs-target="#documents">
+                    Documents
+                </button>
+            </li>
+
+
+            <li class="nav-item">
+                <button class="nav-link"
+                        data-bs-toggle="tab"
+                        data-bs-target="#attendance">
+                    Attendance
+                </button>
+            </li>
+
+
+            <li class="nav-item">
+                <button class="nav-link"
+                        data-bs-toggle="tab"
+                        data-bs-target="#payroll">
+                    Payroll
+                </button>
+            </li>
+
+        </ul>
+
+
+
+        <div class="tab-content mt-4">
+
+
+            <!-- Profile -->
+
+            <div class="tab-pane fade show active"
+                 id="profile">
+
+
+                <div class="employee-section-title">
+                    Personal Information
+                </div>
+
+
+                <div class="row">
+
+
+                    <div class="col-md-6 mb-3">
+
+                        <label>Email</label>
+
+                        <div class="profile-value">
+                            @Model.EmailAddress
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label>Phone</label>
+                        <div class="profile-value">
+                            @(string.IsNullOrEmpty(Model.Phone) ? "-" : Model.Phone)
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label>Gender</label>
+                        <div class="profile-value">
+                            @(string.IsNullOrEmpty(Model.Gender) ? "-" : Model.Gender)
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label>Date of Birth</label>
+                        <div class="profile-value">
+                            @(Model.DateOfBirth == default(DateTime) ? "-" : Model.DateOfBirth.ToString("dd MMM yyyy"))
+                        </div>
+                    </div>
+
+
+
+                    <div class="col-md-6 mb-3">
+
+                        <label>Department</label>
+
+                        <div class="profile-value">
+                            @Model.DepartmentName
+                        </div>
+
+                    </div>
+                    <div class="col-md-6 mb-3">
+
+                        <label>Shift</label>
+
+                        <div class="profile-value">
+                            @Model.ShiftName
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="col-md-6 mb-3">
+
+                        <label>Designation</label>
+
+                        <div class="profile-value">
+                            @Model.DesignationName
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+            <!-- Documents -->
+            <div class="tab-pane fade" id="documents">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5>Employee Documents</h5>
+                    @if (User.IsInRole("Admin") || User.IsInRole("HR Manager") || User.IsInRole("HR Officer"))
+                    {
+                        <a href="@Url.Action("Index","EmployeeFiles",new { employeeId = Model.EmployeeId })" class="btn btn-primary btn-sm">
+                            <i class="fa-solid fa-folder-open me-2"></i> Manage Documents
+                        </a>
+                    }
+                </div>
+                
+                @if (Model.Documents != null && Model.Documents.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Document Type</th>
+                                    <th>Title</th>
+                                    <th>Upload Date</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var doc in Model.Documents)
+                                {
+                                    <tr>
+                                        <td><span class="badge bg-secondary">@doc.FileType</span></td>
+                                        <td>@doc.FileName</td>
+                                        <td>@doc.UploadDate.ToString("dd MMM yyyy")</td>
+                                        <td>
+                                            <a href="@Url.Content(doc.FilePath)" target="_blank" class="btn btn-sm btn-outline-info">
+                                                <i class="fa-solid fa-download"></i> View / Download
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-info">
+                        No documents found for this employee.
+                    </div>
+                }
+            </div>
+
+
+
+
+
+            <!-- Attendance -->
+
+            <div class="tab-pane fade"
+                 id="attendance">
+
+
+                <div class="row mb-3">
+
+                    <div class="col-md-3">
+
+                        <label>
+                            Month
+                        </label>
+
+                        <select id="attendanceMonth"
+                                class="form-control">
+
+                            <option value="0">
+                                All Months
+                            </option>
+
+                            @for (int i = 1; i <= 12; i++)
+                            {
+                                <option value="@i"
+                                        @(i == DateTime.Now.Month ? "selected" : "")>
+
+                                    @System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(i)
+
+                                </option>
+                            }
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="col-md-3">
+
+                        <label>
+                            Year
+                        </label>
+
+                        <select id="attendanceYear"
+                                class="form-control">
+
+                            @if (Model.AttendanceHistory.AvailableYears != null && Model.AttendanceHistory != null)
+                            {
+                                foreach (var year in Model.AttendanceHistory.AvailableYears)
+                                {
+                                    <option value="@year">
+                                        @year
+                                    </option>
+                                }
+                            }
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="col-md-3 align-self-end">
+
+                        <button id="filterAttendance"
+                                class="btn btn-primary">
+
+                            Filter
+
+                        </button>
+
+                    </div>
+
+
+                </div>
+
+
+                <div id="attendanceContainer">
+
+                    @Html.Partial(
+                        "_AttendanceHistory",
+                        Model.AttendanceHistory
+                    )
+
+                </div>
+
+
+            </div>
+
+
+            <!-- Payroll -->
+
+            <div class="tab-pane fade" id="payroll">
+                @if (Model.PayrollHistory != null && Model.PayrollHistory.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Status</th>
+                                    <th>Gross</th>
+                                    <th>Deduction</th>
+                                    <th>Net Salary</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var slip in Model.PayrollHistory)
+                                {
+                                    <tr>
+                                        <td>
+                                            @if (slip.Status == "Paid")
+                                            {
+                                                <span class="badge bg-success">@slip.Status</span>
+                                            }
+                                            else if (slip.Status == "Approved")
+                                            {
+                                                <span class="badge bg-primary">@slip.Status</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-warning text-dark">@slip.Status</span>
+                                            }
+                                        </td>
+                                        <td>@slip.GrossSalary.ToString("N2")</td>
+                                        <td class="text-danger">-@slip.TotalDeduction.ToString("N2")</td>
+                                        <td class="fw-bold">@slip.NetSalary.ToString("N2")</td>
+                                        <td>
+                                            <a href="@Url.Action("Payslip", "Payroll", new { id = slip.SalarySlipId })" class="btn btn-sm btn-outline-info">
+                                                <i class="fa-solid fa-file-invoice"></i> View Payslip
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="module-placeholder">
+                        <i class="fa-solid fa-money-bill"></i>
+                        <h5>No Payroll History</h5>
+                        <p>This employee does not have any generated payroll slips yet.</p>
+                    </div>
+                }
+            </div>
+
+
+        </div>
+
+    </div>
+
+</div>
+
+@section scripts{
+
+    <script>
+
+
+$("#filterAttendance").click(function () {
+
+
+    var month =
+        $("#attendanceMonth").val();
+
+
+    var year =
+        $("#attendanceYear").val();
+
+
+
+    $.ajax({
+
+        url:
+        '@Url.Action("FilterEmployeeAttendance", "Employees")',
+
+
+        type:
+        "GET",
+
+
+        data:
+        {
+            employeeId:@Model.EmployeeId,
+            month: month,
+
+            year:
+            year
+        },
+
+
+        success:function(result)
+        { 
+            $("#attendanceContainer")
+            .html(result);
+
+        },
+
+
+        error:function(xhr)
+        {
+
+            console.log(xhr.responseText);
+
+            alert("Unable to load attendance history.");
+
+        }
+
+    });
+
+
+});
+
+
+    </script>
+
+}
+

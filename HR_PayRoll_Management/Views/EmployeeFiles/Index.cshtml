@@ -1,0 +1,250 @@
+﻿@model IEnumerable<HR_PayRoll_Management.ViewModels.EmployeeFile.EmployeeFileViewModel>
+
+@{
+    ViewBag.Title = "Employee Documents";
+}
+
+@section styles {
+    <link href="~/Content/EmployeeFile.css" rel="stylesheet" />
+}
+
+<div class="page-header">
+    <div>
+        <h1>Employee Documents</h1>
+        <p>Upload, download and manage employee documents.</p>
+    </div>
+
+    <a href="@Url.Action("Index","Employees")" class="btn btn-outline-secondary">
+        <i class="fa-solid fa-arrow-left me-2"></i>
+        Back to Employees
+    </a>
+</div>
+
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">
+        <i class="fa-solid fa-circle-check me-2"></i>
+        @TempData["Success"]
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        <i class="fa-solid fa-circle-exclamation me-2"></i>
+        @TempData["Error"]
+    </div>
+}
+
+
+
+<div class="card document-upload-card mb-4">
+
+    <div class="card-header">
+        <i class="fa-solid fa-cloud-arrow-up me-2"></i>
+        Upload New Document
+    </div>
+
+
+    <div class="card-body">
+
+        @using (Html.BeginForm("Upload", "EmployeeFiles", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+            @Html.AntiForgeryToken()
+
+            <input type="hidden"
+                   name="EmployeeId"
+                   value="@ViewBag.EmployeeId" />
+
+
+            <div class="row align-items-end">
+
+                <div class="col-md-9 mb-3">
+
+                    <label class="form-label">
+                        Select File
+                    </label>
+
+                    <input type="file"
+                           name="File"
+                           class="form-control" />
+
+                </div>
+
+
+                <div class="col-md-3 mb-3">
+
+                    <button type="submit"
+                            class="btn btn-primary w-100">
+
+                        <i class="fa-solid fa-upload me-2"></i>
+                        Upload
+
+                    </button>
+
+                </div>
+
+            </div>
+        }
+
+    </div>
+
+</div>
+
+
+
+
+<div class="card">
+
+    <div class="card-header">
+        <i class="fa-solid fa-folder-open me-2"></i>
+        Uploaded Documents
+    </div>
+
+
+    <div class="card-body p-0">
+
+        <div class="table-responsive">
+
+            <table class="table document-table mb-0">
+
+                <thead>
+
+                    <tr>
+                        <th>
+                            Document
+                        </th>
+
+                        <th>
+                            File Type
+                        </th>
+
+                        <th>
+                            Upload Date
+                        </th>
+
+                        <th class="text-end">
+                            Actions
+                        </th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    @if (Model.Any())
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr>
+
+                                <td>
+
+                                    <div class="document-name">
+
+                                        <div class="document-icon">
+                                            <i class="fa-solid fa-file-lines"></i>
+                                        </div>
+
+                                        <span>
+                                            @item.FileName
+                                        </span>
+
+                                    </div>
+
+                                </td>
+
+
+                                <td>
+                                    <span class="file-type">
+                                        @item.FileType
+                                    </span>
+                                </td>
+
+
+                                <td>
+                                    @item.UploadDate.ToString("dd MMM yyyy")
+                                </td>
+
+
+                                <td>
+
+                                    <div class="document-actions">
+
+                                        <a href="@Url.Action("Download", "EmployeeFiles", new { id = item.FileId })"
+                                           class="action-btn"
+                                           title="Download">
+
+                                            <i class="fa-solid fa-download"></i>
+
+                                        </a>
+
+
+                                        @using (Html.BeginForm("Delete", "EmployeeFiles", FormMethod.Post))
+                                        {
+                                            @Html.AntiForgeryToken()
+
+                                            <input type="hidden"
+                                                   name="id"
+                                                   value="@item.FileId" />
+
+                                            <input type="hidden"
+                                                   name="employeeId"
+                                                   value="@item.EmployeeId" />
+
+
+                                            <button type="submit"
+                                                    class="action-btn action-btn-danger"
+                                                    title="Delete"
+                                                    onclick="return confirm('Are you sure you want to delete this document?');">
+
+                                                <i class="fa-solid fa-trash"></i>
+
+                                            </button>
+                                        }
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+
+                            <td colspan="4">
+
+                                <div class="empty-state">
+
+                                    <div class="empty-state-icon">
+                                        <i class="fa-solid fa-folder-open"></i>
+                                    </div>
+
+                                    <h5>
+                                        No documents found
+                                    </h5>
+
+                                    <p>
+                                        Upload employee documents to see them here.
+                                    </p>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>

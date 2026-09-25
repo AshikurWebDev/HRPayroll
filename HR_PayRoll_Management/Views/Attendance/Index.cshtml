@@ -1,0 +1,582 @@
+﻿@model HR_PayRoll_Management.ViewModels.AttendanceVM.DailyAttendancePageViewModel
+
+@{
+    ViewBag.Title = "Daily Attendance";
+}
+
+
+@section styles {
+
+    <link href="~/Content/Attendance.css" rel="stylesheet" />
+
+}
+
+
+
+<div class="page-header">
+
+    <div>
+
+        <h1>
+            Daily Attendance
+        </h1>
+
+        <p>
+            Manage employee attendance records.
+        </p>
+
+    </div>
+
+
+    <div>
+
+        <a href="@Url.Action("MonthlyReport","Attendance")"
+           class="btn btn-outline-primary">
+
+            <i class="fa-solid fa-chart-column"></i>
+
+            Monthly Report
+
+        </a>
+
+    </div>
+
+</div>
+
+
+
+
+<div class="card attendance-card">
+
+    <div class="card-body">
+
+        @Html.AntiForgeryToken()
+
+
+
+        <div class="row mb-4">
+            @if (User.IsInRole("Manager") && !User.IsInRole("Admin") && !User.IsInRole("HR Manager"))
+            {
+                int mgrDeptId = 0;
+                using (var db = new HR_PayRoll_Management.DAL.AppDbContext())
+                {
+                    var u = System.Linq.Queryable.FirstOrDefault(db.Users.Include("Employee"), x => x.Username == User.Identity.Name);
+                    if (u != null && u.Employee != null) { mgrDeptId = u.Employee.DepartmentId; }
+                }
+                <input type="hidden" id="hiddenManagerDeptId" value="@mgrDeptId" />
+                <script>
+                    window.onload = function() {
+                        if (typeof loadEmployees === 'function') {
+                            loadEmployees(@mgrDeptId);
+                        }
+                    };
+                </script>
+            }
+
+
+            <div class="col-md-4">
+
+                <label class="form-label">
+                    Attendance Date
+                </label>
+
+
+                <input type="date"
+                       id="attendanceDate"
+                       class="form-control"
+                       value="@Model.AttendanceDate.ToString("yyyy-MM-dd")"
+                       readonly />
+
+            </div>
+
+
+
+            @if (User.IsInRole("Admin") || User.IsInRole("HR Manager") || User.IsInRole("HR Officer")) {
+            <div class="col-md-4">
+                <label class="form-label">Department</label>
+                <select id="departmentFilter" class="form-select">
+                    <option value="">All Departments</option>
+                    @foreach (var dept in Model.Departments)
+                    {
+                        <option value="@dept.Value">@dept.Text</option>
+                    }
+                </select>
+            </div>
+            }
+
+
+        </div>
+
+
+
+
+
+        <div class="table-responsive">
+
+
+            <table class="table table-hover align-middle">
+
+
+                <thead>
+
+                    <tr>
+
+
+                        <th>
+                            Employee
+                        </th>
+
+
+                        <th>
+                            Department
+                        </th>
+
+
+                        <th>
+                            Status
+                        </th>
+
+
+                        <th>
+                            Entry Time
+                        </th>
+
+
+                        <th>
+                            Exit Time
+                        </th>
+
+
+                        <th>
+                            Remarks
+                        </th>
+
+
+                    </tr>
+
+
+                </thead>
+
+
+
+                <tbody id="attendanceBody">
+
+
+
+                    @if (Model.Employees != null)
+                    {
+
+                        foreach (var item in Model.Employees)
+                        {
+
+
+                            <tr>
+
+
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        @if (!string.IsNullOrEmpty(item.PhotoPath))
+                                        {
+                                            <img src="@Url.Content(item.PhotoPath)" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;" />
+                                        }
+                                        else
+                                        {
+                                            <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px; font-size: 12px; font-weight: bold;">
+                                                @(item.EmployeeName.Substring(0, 1).ToUpper())
+                                            </div>
+                                        }
+                                        <div>
+                                            @item.EmployeeName
+                                            <input type="hidden" class="employeeId" value="@item.EmployeeId" />
+                                        </div>
+                                    </div>
+                                </td>
+
+
+
+                                <td>
+
+                                    @item.DepartmentName
+
+                                </td>
+
+
+
+
+                                <td>
+
+
+                                    <select class="form-select attendance-status">
+
+
+                                        <option value="Present">
+                                            Present
+                                        </option>
+
+
+                                        <option value="Absent">
+                                            Absent
+                                        </option>
+
+
+                                        <option value="Leave">
+                                            Leave
+                                        </option>
+
+
+                                        <option value="Half Day">
+                                            Half Day
+                                        </option>
+
+
+                                    </select>
+
+
+                                </td>
+
+
+
+                                <td>
+
+                                    <input type="time"
+                                           class="form-control entry-time" />
+
+                                </td>
+
+
+
+
+                                <td>
+
+                                    <input type="time"
+                                           class="form-control exit-time" />
+
+                                </td>
+
+
+
+                                <td>
+
+                                    <input type="text"
+                                           class="form-control remarks"
+                                           placeholder="Remarks" />
+
+                                </td>
+
+
+                            </tr>
+
+
+                        }
+
+                    }
+
+
+
+                </tbody>
+
+
+            </table>
+
+
+        </div>
+
+
+
+
+        <div class="text-end mt-3">
+
+
+            <button type="button"
+                    id="saveAttendance"
+                    class="btn btn-primary">
+
+
+                <i class="fa-solid fa-save"></i>
+
+                Save Attendance
+
+
+            </button>
+
+
+        </div>
+
+
+    </div>
+
+</div>
+
+
+
+
+
+
+@section scripts {
+
+
+    <script>
+
+
+$("#departmentFilter").change(function () {
+    var departmentId = $(this).val();
+    loadEmployees(departmentId);
+});
+
+
+
+
+
+function loadEmployees(departmentId)
+{
+
+
+    $.ajax({
+
+        url:
+        '@Url.Action("GetEmployeesByDepartment","Attendance")',
+
+
+        type:"GET",
+
+
+        data:
+        {
+            departmentId: departmentId
+        },
+
+
+        success:function(data)
+        {
+
+
+            $("#attendanceBody").empty();
+
+
+
+            $.each(data,function(index,item)
+            {
+
+
+                var photoHtml = '';
+                if (item.PhotoPath) {
+                    // Make sure URL is properly resolved if needed. For now assuming it is absolute or relative
+                    var photoUrl = item.PhotoPath.replace("~", "");
+                    photoHtml = '<img src="' + photoUrl + '" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;" />';
+                } else {
+                    photoHtml = '<div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px; font-size: 12px; font-weight: bold;">' + item.EmployeeName.substring(0, 1).toUpperCase() + '</div>';
+                }
+
+                var row = `
+
+
+                <tr>
+
+
+                    <td>
+
+                        <div class="d-flex align-items-center">
+                            ${photoHtml}
+                            <div>
+                                ${item.EmployeeName}
+                                <input type="hidden" value="${item.EmployeeId}" class="employeeId"/>
+                            </div>
+                        </div>
+
+                    </td>
+
+
+
+                    <td>
+
+                        ${item.DepartmentName}
+
+                    </td>
+
+
+
+                    <td>
+
+
+                        <select class="form-select attendance-status">
+
+
+                            <option value="Present">
+                                Present
+                            </option>
+
+
+                            <option value="Absent">
+                                Absent
+                            </option>
+
+
+                            <option value="Leave">
+                                Leave
+                            </option>
+
+
+                            <option value="Half Day">
+                                Half Day
+                            </option>
+
+
+                        </select>
+
+
+                    </td>
+
+
+
+                    <td>
+
+
+                        <input type="time"
+                               class="form-control entry-time"/>
+
+
+                    </td>
+
+
+
+
+                    <td>
+
+
+                        <input type="time"
+                               class="form-control exit-time"/>
+
+
+                    </td>
+
+
+
+
+                    <td>
+
+
+                        <input type="text"
+                               class="form-control remarks"/>
+
+
+                    </td>
+
+
+
+                </tr>
+
+
+                `;
+
+
+
+                $("#attendanceBody")
+                .append(row);
+
+
+
+            });
+
+
+        },
+
+
+        error:function()
+        {
+
+            alert("Employee loading failed");
+
+        }
+
+
+    });
+
+
+}
+
+
+
+
+
+
+
+$("#saveAttendance").click(function () {
+    var attendanceList = [];
+
+    $("#attendanceBody tr").each(function () {
+        var row = $(this);
+
+        attendanceList.push({
+            EmployeeId: row.find(".employeeId").val(),
+            Status: row.find(".attendance-status").val(),
+            EntryTime: row.find(".entry-time").val(),
+            ExitTime: row.find(".exit-time").val(),
+            Remarks: row.find(".remarks").val()
+        });
+    });
+
+    if (attendanceList.length === 0) {
+        alert("No employees found to save attendance.");
+        return;
+    }
+
+    var postData = {
+        __RequestVerificationToken:
+            $('input[name="__RequestVerificationToken"]').val(),
+
+        AttendanceDate:
+            $("#attendanceDate").val()
+    };
+
+    $.each(attendanceList, function (index, item) {
+        postData["AttendanceEntries[" + index + "].EmployeeId"] = item.EmployeeId;
+        postData["AttendanceEntries[" + index + "].Status"] = item.Status;
+        postData["AttendanceEntries[" + index + "].EntryTime"] = item.EntryTime;
+        postData["AttendanceEntries[" + index + "].ExitTime"] = item.ExitTime;
+        postData["AttendanceEntries[" + index + "].Remarks"] = item.Remarks;
+    });
+
+    $("#saveAttendance").prop("disabled", true);
+
+    $.ajax({
+        url: '@Url.Action("SaveAttendance", "Attendance")',
+        type: "POST",
+        data: postData,
+
+        success: function (response) {
+            if (response.success) {
+                // Success: Redirect (the redirect page will show the success toast)
+                window.location.href = response.redirectUrl;
+            } else {
+                // Error: show error toast using the global function in _Layout.cshtml
+                if (typeof showToast === "function") {
+                    showToast(response.message || "Attendance could not be saved.", "error");
+                } else {
+                    alert(response.message || "Attendance could not be saved.");
+                }
+            }
+        },
+
+        error: function (xhr) {
+            console.log(xhr.responseText);
+            if (typeof showToast === "function") {
+                showToast("Attendance saving failed.", "error");
+            } else {
+                alert("Attendance saving failed.");
+            }
+        },
+
+        complete: function () {
+            $("#saveAttendance").prop("disabled", false);
+        }
+    });
+});
+
+
+
+    </script>
+
+
+}
+
+

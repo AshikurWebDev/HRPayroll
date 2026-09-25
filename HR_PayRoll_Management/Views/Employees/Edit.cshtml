@@ -1,0 +1,197 @@
+@model HR_PayRoll_Management.ViewModels.EmployeeEditViewModel
+
+@{
+    ViewBag.Title = "Edit Employee";
+}
+
+@section styles {
+    <link href="~/Content/Employee.css" rel="stylesheet" />
+}
+
+<div class="page-header">
+    <div>
+        <h1>Edit Employee</h1>
+        <p>Update employee profile, department and salary information.</p>
+    </div>
+
+    <a href="@Url.Action("Index","Employees")" class="btn btn-outline-secondary">
+        <i class="fa-solid fa-arrow-left me-2"></i>
+        Back
+    </a>
+</div>
+
+
+<div class="card employee-form-card">
+
+    <div class="card-header">
+        <i class="fa-solid fa-user-pen me-2"></i>
+        Employee Information
+    </div>
+
+
+    <div class="card-body">
+
+        @using (Html.BeginForm("Edit", "Employees", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(model => model.EmployeeId)
+
+
+            <div class="row">
+
+                <div class="col-md-6 mb-3">
+
+                    @Html.LabelFor(model => model.FullName, new { @class = "form-label" })
+
+                    @Html.TextBoxFor(model => model.FullName, new
+                    {
+                        @class = "form-control",
+                        placeholder = "Enter full name"
+                    })
+
+                </div>
+
+
+                <div class="col-md-6 mb-3">
+
+                    @Html.LabelFor(model => model.EmailAddress, new { @class = "form-label" })
+
+                    @Html.TextBoxFor(model => model.EmailAddress, new
+                    {
+                        @class = "form-control",
+                        placeholder = "Enter email address"
+                    })
+
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    @Html.LabelFor(x => x.Phone, new { @class = "form-label" })
+                    @Html.TextBoxFor(x => x.Phone, new { @class = "form-control", placeholder = "Enter phone number" })
+                    @Html.ValidationMessageFor(x => x.Phone, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    @Html.LabelFor(x => x.Gender, new { @class = "form-label" })
+                    @Html.DropDownListFor(x => x.Gender, new SelectList(new[] { "Male", "Female", "Other" }), "-- Select Gender --", new { @class = "form-select" })
+                    @Html.ValidationMessageFor(x => x.Gender, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    @Html.LabelFor(x => x.DateOfBirth, "Date of Birth", new { @class = "form-label" })
+                    @Html.TextBoxFor(x => x.DateOfBirth, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
+                    @Html.ValidationMessageFor(x => x.DateOfBirth, "", new { @class = "text-danger" })
+                </div>
+
+
+                <div class="form-group mb-3">
+
+                    @Html.LabelFor(
+                        x => x.DesignationId)
+
+                    @Html.DropDownListFor(
+                        x => x.DesignationId,
+                        Model.Designations,
+                        "-- Select Designation --",
+                        new
+                        {
+                            @class = "form-control"
+                        })
+
+                </div>
+
+
+                <div class="col-md-6 mb-3">
+
+                    @Html.LabelFor(model => model.DepartmentId, new { @class = "form-label" })
+
+                    @Html.DropDownListFor(
+                        model => model.DepartmentId,
+                        Model.Departments,
+                        "-- Select Department --",
+                        new { @class = "form-select" }
+                    )
+
+                </div>
+
+            </div>
+
+
+
+            <div class="employee-section-title">
+                Salary Information
+            </div>
+
+
+
+            <div class="employee-section-title">
+                Profile Photo
+            </div>
+
+
+            <div class="row align-items-center">
+
+                <div class="col-md-3 mb-3">
+
+                    <label class="form-label">
+                        Current Photo
+                    </label>
+
+
+                    @if (!string.IsNullOrEmpty(Model.ExistingPhotoPath))
+                    {
+                        <img src="@Url.Content(Model.ExistingPhotoPath)"
+                             class="profile-preview"
+                             alt="Current Photo" />
+                    }
+                    else
+                    {
+                        <div class="profile-preview profile-avatar-default">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                    }
+
+                </div>
+
+
+                <div class="col-md-9 mb-3">
+
+                    <label class="form-label">
+                        Change Photo
+                    </label>
+
+
+                    <input type="file"
+                           name="Photo"
+                           class="form-control" />
+
+                </div>
+
+            </div>
+
+
+
+            <div class="form-actions">
+
+                <button type="submit" class="btn btn-primary">
+
+                    <i class="fa-solid fa-floppy-disk me-2"></i>
+
+                    Update
+
+                </button>
+
+
+                <a href="@Url.Action("Index","Employees")"
+                   class="btn btn-light border">
+
+                    Cancel
+
+                </a>
+
+            </div>
+
+        }
+
+    </div>
+
+</div>

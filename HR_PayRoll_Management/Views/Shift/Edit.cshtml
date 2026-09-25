@@ -1,0 +1,44 @@
+﻿@model HR_PayRoll_Management.Models.Shift
+
+@{
+    ViewBag.Title = "Edit Shift";
+}
+
+<div class="page-header mb-4">
+    <h1>Edit Shift</h1>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        @using (Html.BeginForm()) {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(m => m.ShiftId)
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    @Html.LabelFor(m => m.ShiftName, new { @class = "form-label" })
+                    @Html.TextBoxFor(m => m.ShiftName, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(m => m.ShiftName, "", new { @class = "text-danger" })
+                </div>
+                <div class="col-md-3 mb-3">
+                    @Html.LabelFor(m => m.StartTime, new { @class = "form-label" })
+                    @Html.TextBoxFor(m => m.StartTime, new { @class = "form-control", type = "time", @Value = Model.StartTime.ToString(@"hh\:mm") })
+                    @Html.ValidationMessageFor(m => m.StartTime, "", new { @class = "text-danger" })
+                </div>
+                <div class="col-md-3 mb-3">
+                    @Html.LabelFor(m => m.EndTime, new { @class = "form-label" })
+                    @Html.TextBoxFor(m => m.EndTime, new { @class = "form-control", type = "time", @Value = Model.EndTime.ToString(@"hh\:mm") })
+                    @Html.ValidationMessageFor(m => m.EndTime, "", new { @class = "text-danger" })
+                </div>
+                <div class="col-md-12 mb-3">
+                    @Html.LabelFor(m => m.LateAllowanceMinutes, new { @class = "form-label" })
+                    @Html.TextBoxFor(m => m.LateAllowanceMinutes, new { @class = "form-control", type = "number" })
+                    @Html.ValidationMessageFor(m => m.LateAllowanceMinutes, "", new { @class = "text-danger" })
+                </div>
+                <div class="col-md-12">
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <a href="@Url.Action("Index")" class="btn btn-secondary">Cancel</a>
+                </div>
+            </div>
+        }
+    </div>
+</div>

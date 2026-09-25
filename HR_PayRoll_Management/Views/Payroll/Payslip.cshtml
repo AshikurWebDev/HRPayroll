@@ -1,0 +1,159 @@
+@model HR_PayRoll_Management.ViewModels.PayslipViewModel
+
+@{
+    ViewBag.Title = "Salary Slip";
+}
+
+@section styles {
+    <link href="~/Content/Payroll.css" rel="stylesheet" />
+}
+
+<div class="payslip-container">
+    <div class="payslip-header">
+        <h2>HR PAYROLL SYSTEM</h2>
+        <h4>Salary Slip</h4>
+        <p>
+            Period: @System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(Model.PayrollMonth) @Model.PayrollYear
+        </p>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <h5 class="section-title text-uppercase mb-3">Employee Information</h5>
+            <div class="d-flex align-items-center mb-3 p-3 border rounded bg-light">
+                @if (!string.IsNullOrEmpty(Model.PhotoPath))
+                {
+                    <img src="@Url.Content(Model.PhotoPath)" alt="Employee Photo" class="rounded-circle me-3 shadow-sm" style="width: 80px; height: 80px; object-fit: cover; border: 2px solid #fff;" />
+                }
+                else
+                {
+                    <img src="~/Content/Images/default-avatar.png" alt="Employee Photo" class="rounded-circle me-3 shadow-sm" style="width: 80px; height: 80px; object-fit: cover; border: 2px solid #fff;" />
+                }
+                <div class="flex-grow-1">
+                    <h4 class="mb-1 text-primary fw-bold">@Model.EmployeeName</h4>
+                    <p class="mb-0 text-secondary">
+                        <i class="fa-solid fa-briefcase me-1"></i> @Model.DesignationName 
+                        <span class="mx-2">|</span> 
+                        <i class="fa-solid fa-building me-1"></i> @Model.DepartmentName
+                    </p>
+                </div>
+                <div class="text-end border-start ps-4">
+                    <p class="mb-1 text-muted small">Employee ID</p>
+                    <h5 class="mb-2">@Model.EmployeeId</h5>
+                    <p class="mb-1 text-muted small">Generated On</p>
+                    <p class="mb-0 fw-semibold">@Model.GeneratedDate.ToString("dd MMM yyyy")</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-6">
+            <h5 class="section-title text-success"><i class="fa-solid fa-arrow-trend-up me-2"></i>Earnings</h5>
+            <table class="salary-table">
+                <tr>
+                    <th>Description</th>
+                    <th class="text-end">Amount</th>
+                </tr>
+                <tr>
+                    <td>Basic Salary</td>
+                    <td class="amount">@Model.BasicSalary.ToString("N2")</td>
+                </tr>
+                <tr>
+                    <td>House Rent</td>
+                    <td class="amount">@Model.HouseRent.ToString("N2")</td>
+                </tr>
+                <tr>
+                    <td>Medical Allowance</td>
+                    <td class="amount">@Model.MedicalAllowance.ToString("N2")</td>
+                </tr>
+                <tr>
+                    <td>Transport Allowance</td>
+                    <td class="amount">@Model.TransportAllowance.ToString("N2")</td>
+                </tr>
+                <tr>
+                    <td>Bonus</td>
+                    <td class="amount">@Model.BonusAmount.ToString("N2")</td>
+                </tr>
+                <tr>
+                    <td>Overtime</td>
+                    <td class="amount">@Model.OvertimeAmount.ToString("N2")</td>
+                </tr>
+                <tr class="table-success">
+                    <th class="fw-bold">Gross Salary</th>
+                    <th class="amount fw-bold">@Model.GrossSalary.ToString("N2")</th>
+                </tr>
+            </table>
+        </div>
+
+        <div class="col-6">
+            <h5 class="section-title text-danger"><i class="fa-solid fa-arrow-trend-down me-2"></i>Deductions</h5>
+            <table class="salary-table">
+                <tr>
+                    <th>Description</th>
+                    <th class="text-end">Amount</th>
+                </tr>
+                <tr>
+                    <td>Absent Days</td>
+                    <td class="amount">@Model.AbsentDays</td>
+                </tr>
+                <tr>
+                    <td>Absent Deduction</td>
+                    <td class="amount">@Model.AbsentDeduction.ToString("N2")</td>
+                </tr>
+                <tr>
+                    <td>Leave Deduction</td>
+                    <td class="amount">@Model.LeaveDeduction.ToString("N2")</td>
+                </tr>
+                <tr>
+                    <td>Tax Deduction</td>
+                    <td class="amount">@Model.TaxDeduction.ToString("N2")</td>
+                </tr>
+                <tr>
+                    <td colspan="2" class="border-0" style="padding: 13px;"></td> <!-- Spacer to align tables -->
+                </tr>
+                <tr class="table-danger">
+                    <th class="fw-bold">Total Deduction</th>
+                    <th class="amount fw-bold text-danger">-@Model.TotalDeduction.ToString("N2")</th>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="net-salary">
+        Net Salary:
+        <br />
+        @Model.NetSalary.ToString("N2")
+    </div>
+
+    <div class="signature-section">
+        <table class="signature-table">
+            <tr>
+                <td>
+                    _____________________
+                    <br />
+                    Prepared By
+                </td>
+                <td>
+                    _____________________
+                    <br />
+                    Employee Signature
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="no-print mt-4">
+        <button onclick="window.print()" class="btn btn-primary">
+            <i class="fa-solid fa-print"></i> Print
+        </button>
+
+        <a href="@Url.Action("ExportPayslipPdf", "Payroll", new { id = Model.SalarySlipId })" class="btn btn-danger">
+            <i class="fa-solid fa-file-pdf"></i> Export PDF
+        </a>
+
+        <a href="@Url.Action("ExportPayslipExcel", "Payroll", new { id = Model.SalarySlipId })" class="btn btn-success">
+            <i class="fa-solid fa-file-excel"></i> Export Excel
+        </a>
+    </div>
+</div>

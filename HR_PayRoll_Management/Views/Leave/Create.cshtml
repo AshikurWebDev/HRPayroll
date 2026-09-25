@@ -1,0 +1,96 @@
+﻿@model HR_PayRoll_Management.ViewModels.LeaveVM.LeaveCreateViewModel
+
+@{
+    ViewBag.Title = "Apply Leave";
+}
+
+<div class="card">
+    <div class="card-body">
+        <h3 class="mb-4">Apply Leave</h3>
+
+        @if (ViewBag.LeaveBalances != null)
+        {
+            <div class="row mb-4">
+                @foreach (var bal in (IEnumerable<HR_PayRoll_Management.ViewModels.LeaveVM.LeaveBalanceCardVM>)ViewBag.LeaveBalances)
+                {
+                    <div class="col-md-3 mb-2">
+                        <div class="card border-primary text-center">
+                            <div class="card-body p-2">
+                                <h6 class="card-title text-primary mb-1">@bal.Name</h6>
+                                <p class="card-text mb-0 fs-5">
+                                    <strong>@bal.Remaining</strong> / @bal.Allocated
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+
+        @using (Html.BeginForm())
+        {
+            @if (!ViewData.ModelState.IsValid) { <div id="errorBox" class="alert alert-danger">@Html.ValidationSummary(false, "")</div> }
+            @Html.AntiForgeryToken()
+
+            <div class="mb-3">
+                <label class="form-label">Employee</label>
+                @if (ViewBag.CurrentEmployeeName != null)
+                {
+                    <input type="text" class="form-control" value="@ViewBag.CurrentEmployeeName" readonly />
+                    @Html.Hidden("EmployeeId", (int)ViewBag.CurrentEmployeeId)
+                }
+                else
+                {
+                    @Html.DropDownListFor(
+                        x => x.EmployeeId,
+                        new SelectList(ViewBag.Employees, "Value", "Text"),
+                        "Select Employee",
+                        new { @class = "form-select" })
+                }
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Leave Type</label>
+                @Html.DropDownListFor(x => x.LeaveTypeId, Model.LeaveTypes, "Select Leave Type",  new {@class = "form-select"})
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">From Date</label>
+                @Html.TextBoxFor(
+                    x => x.FromDate,
+                    "{0:yyyy-MM-dd}",
+                    new { @class = "form-control", type = "date" })
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">To Date</label>
+                @Html.TextBoxFor(
+                    x => x.ToDate,
+                    "{0:yyyy-MM-dd}",
+                    new { @class = "form-control", type = "date" })
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Reason</label>
+                @Html.TextAreaFor(
+                    x => x.Reason,
+                    new { @class = "form-control", rows = "3" })
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                Save
+            </button>
+        }
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        $(document).ready(function() {
+            var errorBox = $('#errorBox');
+            if (errorBox.length > 0) {
+                setTimeout(function() { errorBox.fadeOut('slow'); }, 3000);
+            }
+        });
+    </script>
+}

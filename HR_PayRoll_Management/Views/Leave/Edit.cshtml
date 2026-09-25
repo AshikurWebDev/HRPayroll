@@ -1,0 +1,94 @@
+﻿@model HR_PayRoll_Management.ViewModels.LeaveVM.LeaveEditViewModel
+
+@{
+    ViewBag.Title = "Edit Leave";
+}
+
+<div class="page-header">
+    <div>
+        <h1>Edit Leave</h1>
+        <p>Update employee leave information.</p>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        @using (Html.BeginForm("Edit", "Leave", FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(x => x.LeaveId)
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Employee</label>
+                    @Html.DropDownListFor(
+                        x => x.EmployeeId,
+                        new SelectList(ViewBag.Employees, "Value", "Text", Model.EmployeeId),
+                        "Select Employee",
+                        new { @class = "form-select" })
+                    @Html.ValidationMessageFor(x => x.EmployeeId, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Leave Type</label>
+                    @Html.DropDownListFor(
+                        x => x.LeaveTypeId,
+                        Model.LeaveTypes,
+                        "Select Leave Type",
+                        new { @class = "form-select" })
+                    @Html.ValidationMessageFor(x => x.LeaveTypeId, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">From Date</label>
+                    @Html.TextBoxFor(
+                        x => x.FromDate,
+                        "{0:yyyy-MM-dd}",
+                        new { @class = "form-control", type = "date" })
+                    @Html.ValidationMessageFor(x => x.FromDate, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">To Date</label>
+                    @Html.TextBoxFor(
+                        x => x.ToDate,
+                        "{0:yyyy-MM-dd}",
+                        new { @class = "form-control", type = "date" })
+                    @Html.ValidationMessageFor(x => x.ToDate, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Reason</label>
+                @Html.TextAreaFor(
+                    x => x.Reason,
+                    new { @class = "form-control", rows = 4, placeholder = "Enter leave reason" })
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Status</label>
+                @Html.DropDownListFor(
+                    x => x.Status,
+                    new SelectList(new[] { "Pending", "Approved", "Rejected" }, Model.Status),
+                    new { @class = "form-select" })
+            </div>
+
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa-solid fa-save"></i> Update Leave
+                </button>
+
+                <a href="@Url.Action("Index", "Leave")" class="btn btn-secondary ms-2">
+                    <i class="fa-solid fa-arrow-left"></i> Back
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+@section scripts {
+    <script src="~/Scripts/jquery.validate.js"></script>
+    <script src="~/Scripts/jquery.validate.unobtrusive.js"></script>
+}

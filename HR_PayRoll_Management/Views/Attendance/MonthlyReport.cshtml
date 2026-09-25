@@ -1,0 +1,45 @@
+﻿@model IEnumerable<HR_PayRoll_Management.ViewModels.AttendanceVM.AttendanceReportViewModel>
+
+@{ 
+    ViewBag.Title = "Monthly Attendance Report";
+}
+
+<h2>
+    Monthly Attendance Report
+</h2>
+
+
+<div class="mb-3">
+    <strong>Month: </strong>
+    @ViewBag.Month 
+    <strong>Year: </strong>
+    @ViewBag.Year 
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Employee</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>late</th>
+            <th>Working Hour</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.EmployeeName</td>
+                <td>@item.AttendanceDate.ToString("dd-MM-yyyy")</td>
+                <td>@item.Status</td>
+                <td>@if (item.IsLate) 
+                    { <span class="text-danger">Yes</span> 
+                    } else 
+                       { <span class="text-success">No</span>}  
+                </td>
+                <td>@item.WorkingHour</td>
+            </tr>
+        }
+    </tbody>
+</table>
+</div>

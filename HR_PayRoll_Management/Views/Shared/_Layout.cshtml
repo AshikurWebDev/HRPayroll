@@ -1,0 +1,425 @@
+﻿@{
+    var settings = HR_PayRoll_Management.Helpers.SettingsHelper.GetSettings();
+    var currentController = ViewContext.RouteData.Values["controller"].ToString();
+}
+@using System.Linq
+@using System.Data.Entity
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="icon" type="image/png" href="@Url.Content(settings.LogoPath)" />
+    <title>@ViewBag.Title - @settings.CompanyName</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <!-- Main Theme -->
+    <link href="~/Content/theme/dashboard-theme.css" rel="stylesheet" />
+    <link href="~/Content/theme/table-theme.css" rel="stylesheet" />
+    <link href="~/Content/theme/sidebar-theme.css" rel="stylesheet" />
+
+    @RenderSection("styles", required: false)
+
+    <style>
+        /* Global Button Color Override */
+        .btn-primary {
+            background-color: #0090A3 !important;
+            border-color: #0090A3 !important;
+            color: #fff !important;
+        }
+
+            .btn-primary:hover, .btn-primary:focus, .btn-primary:active {
+                background-color: #173d5d !important;
+                border-color: #173d5d !important;
+                color: #fff !important;
+                box-shadow: 0 4px 6px rgba(31, 82, 125, 0.3) !important;
+            }
+
+        .btn-outline-primary {
+            color: #0090A3 !important;
+            border-color: #0090A3 !important;
+        }
+
+            .btn-outline-primary:hover, .btn-outline-primary:focus, .btn-outline-primary:active {
+                background-color: #04a6df !important;
+                color: #fff !important;
+            }
+
+        .text-primary {
+            color: #04a6df !important;
+        }
+
+        .bg-primary {
+            background-color: #0090A3 !important;
+        }
+
+        /* Fix for Brand Logo Link in Sidebar */
+        .logo-link {
+            text-decoration: none !important;
+            color: inherit !important;
+            display: block;
+        }
+
+            .logo-link:hover {
+                text-decoration: none !important;
+                color: inherit !important;
+            }
+
+            .logo-link h4 {
+                color: #333 !important;
+            }
+
+            .logo-link small {
+                color: #8a8fa3 !important;
+            }
+    </style>
+</head>
+<body>
+    <div class="hr-wrapper">
+        <!-- Sidebar -->
+        <aside class="hr-sidebar">
+            <a href="@Url.Action("Index", "Dashboard")" class="logo-link">
+                <div class="brand-area">
+                    <div class="brand-icon">
+                        <img src="@Url.Content(settings.LogoPath)" alt="Logo" style="max-height: 40px; border-radius: 5px;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+                        <i class="fa-solid fa-building" style="display: none;"></i>
+                    </div>
+                    <div>
+                        <h4>@settings.CompanyName</h4>
+                        <small>Payroll System</small>
+                    </div>
+                </div>
+            </a>
+
+            <ul class="sidebar-menu">
+                <li class="menu-title">Main Menu</li>
+                <li>
+                    <a href="@Url.Action("Index", "Dashboard")">
+                        <i class="fa-solid fa-chart-line"></i> Dashboard
+                    </a>
+                </li>
+
+                @if (User.IsInRole("Admin") || User.IsInRole("HR Manager") || User.IsInRole("HR Officer") || User.IsInRole("Manager"))
+                {
+                    <li class="menu-title">Management</li>
+                    <li>
+                        <a href="@Url.Action("Index", "Employees")">
+                            <i class="fa-solid fa-users"></i> Employees
+                        </a>
+                    </li>
+
+                    if (User.IsInRole("Admin") || User.IsInRole("HR Manager") || User.IsInRole("HR Officer"))
+                    {
+                        <li>
+                            <a href="@Url.Action("Index", "Shift")">
+                                <i class="fa-solid fa-clock"></i> Shifts
+                            </a>
+                        </li>
+                        <li>
+                            <a href="@Url.Action("Index", "Departments")">
+                                <i class="fa-solid fa-building-user"></i> Departments
+                            </a>
+                        </li>
+                        <li>
+                            <a href="@Url.Action("Index", "Designations")">
+                                <i class="fa-solid fa-user-tie"></i> Designations
+                            </a>
+                        </li>
+                        <li>
+                            <a href="@Url.Action("Index", "SalaryStructure")">
+                                <i class="fa-solid fa-money-check-dollar"></i> Salary Structure
+                            </a>
+                        </li>
+                    }
+                }
+
+                @if (User.IsInRole("Admin") || User.IsInRole("HR Manager") || User.IsInRole("HR Officer") || User.IsInRole("Manager"))
+                {
+                    <li class="menu-title">Operations</li>
+                    <li>
+                        <a href="@Url.Action("Index", "Attendance")">
+                            <i class="fa-solid fa-calendar-check"></i> Attendance
+                        </a>
+                    </li>
+                    <li>
+                        <a href="@Url.Action("Management", "Attendance")">
+                            <i class="fa-solid fa-clipboard-check"></i> Attendance Management
+                        </a>
+                    </li>
+                }
+
+                @if (User.IsInRole("Admin") || User.IsInRole("HR Manager") || User.IsInRole("Payroll Officer"))
+                {
+                    <li>
+                        <a href="@Url.Action("Index", "Payroll")">
+                            <i class="fa-solid fa-file-invoice-dollar"></i> Payroll
+                        </a>
+                    </li>
+                }
+
+                <li>
+                    <a href="@Url.Action("Index", "Leave")">
+                        <i class="fa-solid fa-calendar-minus"></i> Leave Management
+                    </a>
+                </li>
+
+                @if (User.IsInRole("Admin") || User.IsInRole("HR Manager") || User.IsInRole("HR Officer"))
+                {
+                    <li class="menu-title">Company</li>
+                    <li>
+                        <a href="@Url.Action("Index", "Notifications")">
+                            <i class="fa-solid fa-bullhorn"></i> Notice Board
+                        </a>
+                    </li>
+
+                    <li class="menu-title">Reports</li>
+                    <li>
+                        <a href="@Url.Action("Index", "PayrollReports")">
+                            <i class="fa-solid fa-chart-column"></i> Payroll Reports
+                        </a>
+                    </li>
+                    <li>
+                        <a href="@Url.Action("EmployeeHistory", "PayrollReports")">
+                            <i class="fa-solid fa-clock-rotate-left"></i> Employee History
+                        </a>
+                    </li>
+
+                    if (User.IsInRole("HR Manager"))
+                    {
+                        <li class="menu-title">Administration</li>
+                        <li>
+                            <a href="@Url.Action("Index", "Users")">
+                                <i class="fa-solid fa-user-shield"></i> Users
+                            </a>
+                        </li>
+                        <li>
+                            <a href="@Url.Action("Index", "LeaveTypes")">
+                                <i class="fa-solid fa-plane-departure"></i> Leave Types
+                            </a>
+                        </li>
+                    }
+                }
+
+                @if (User.IsInRole("Admin"))
+                {
+                    <li>
+                        <a href="@Url.Action("Index", "Settings")">
+                            <i class="fa-solid fa-gear"></i> System Settings
+                        </a>
+                    </li>
+                }
+
+                @if (User.IsInRole("Admin") || User.IsInRole("HR Manager"))
+                {
+                    <li>
+                        <a href="@Url.Action("Index", "AuditLogs")">
+                            <i class="fa-solid fa-shield-halved"></i> Audit Logs
+                        </a>
+                    </li>
+                }
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="hr-content">
+            <!-- Top Bar -->
+            <header class="top-header">
+                <i class="fa-solid fa-bars mobile-nav-toggle" id="mobileNavToggle"></i>
+
+                <div class="search-box">
+                    <i class="fa-solid fa-search"></i>
+                    <input type="text" placeholder="Search..." />
+                </div>
+
+                <div class="header-right">
+                    <div class="header-date">
+                        <i class="fa-regular fa-calendar"></i>
+                        @DateTime.Now.ToString("dd MMM yyyy")
+                    </div>
+
+                    <div class="notification dropdown">
+                        <a href="#" class="text-dark text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" style="position: relative;">
+                            <i class="fa-regular fa-bell fs-5 mt-1"></i>
+                            <span id="notifBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none; font-size: 0.55rem; transform: translate(-30%, 10%) !important;">0</span>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end p-0 shadow border-0" style="width: 320px; max-height: 400px; overflow-y: auto;">
+                            <div class="p-2 border-bottom bg-light d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0 fw-bold px-2 py-1">Notifications</h6>
+                            </div>
+                            <div id="notifList">
+                                <div class="p-4 text-center text-muted small">No new notifications.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    @{
+                        string layoutPhotoPath = null;
+                        string layoutRoleName = "User";
+
+                        if (User.Identity.IsAuthenticated)
+                        {
+                            using (var db = new HR_PayRoll_Management.DAL.AppDbContext())
+                            {
+                                var layoutUser = db.Users.Include("Employee").Include("Role").FirstOrDefault(x => x.Username == User.Identity.Name);
+                                if (layoutUser != null)
+                                {
+                                    if (layoutUser.Employee != null && !string.IsNullOrEmpty(layoutUser.Employee.PhotoPath))
+                                    {
+                                        layoutPhotoPath = layoutUser.Employee.PhotoPath;
+                                    }
+                                    if (layoutUser.Role != null)
+                                    {
+                                        layoutRoleName = layoutUser.Role.RoleName;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    <div class="profile dropdown">
+                        <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="color: inherit;">
+                            @if (!string.IsNullOrEmpty(layoutPhotoPath))
+                            {
+                                <img src="@Url.Content(layoutPhotoPath)" alt="Profile" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;" />
+                            }
+                            else
+                            {
+                                <div class="profile-avatar me-2">
+                                    @(User.Identity.IsAuthenticated ? User.Identity.Name.Substring(0, 1).ToUpper() : "U")
+                                </div>
+                            }
+                            <div>
+                                <strong>
+                                    @(User.Identity.IsAuthenticated ? User.Identity.Name : "User")
+                                </strong>
+                                <span class="badge bg-primary ms-1" style="font-size: 0.65em;">@layoutRoleName</span>
+                            </div>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="profileDropdown">
+                            <li>
+                                <a class="dropdown-item" href="@Url.Action("MyProfile", "Users")">
+                                    <i class="fa-solid fa-user me-2"></i> My Profile
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item text-danger" href="@Url.Action("Logout", "Auth")">
+                                    <i class="fa-solid fa-sign-out-alt me-2"></i> Logout
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </header>
+
+            <section class="page-content">
+                @RenderBody()
+            </section>
+        </main>
+    </div>
+
+    <!-- Global Toast Container (Bottom Right) -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1055;">
+        <div id="globalToast" class="toast align-items-center text-white bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="4000">
+            <div class="d-flex">
+                <div class="toast-body" id="globalToastMessage">
+                    <!-- Message goes here -->
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/Scripts/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+
+    <script>
+        function showToast(message, type) {
+            var toastEl = document.getElementById('globalToast');
+            var toastMsg = document.getElementById('globalToastMessage');
+
+            // Remove existing bg classes
+            toastEl.classList.remove('bg-primary', 'bg-success', 'bg-danger', 'bg-warning', 'text-dark', 'text-white');
+
+            // Add appropriate styling
+            if (type === 'success') {
+                toastEl.classList.add('bg-success', 'text-white');
+            } else if (type === 'error') {
+                toastEl.classList.add('bg-danger', 'text-white');
+            } else if (type === 'warning') {
+                toastEl.classList.add('bg-warning', 'text-dark');
+                toastEl.querySelector('.btn-close').classList.remove('btn-close-white');
+            } else {
+                toastEl.classList.add('bg-primary', 'text-white');
+            }
+
+            toastMsg.innerHTML = message;
+
+            var toast = new bootstrap.Toast(toastEl);
+            toast.show();
+        }
+
+        $(document).ready(function () {
+            // Auto-trigger toasts from TempData if available
+            var successMessage = '@Html.Raw(HttpUtility.JavaScriptStringEncode(TempData["SuccessMessage"] as string ?? ""))';
+            var errorMessage = '@Html.Raw(HttpUtility.JavaScriptStringEncode(TempData["ErrorMessage"] as string ?? ""))';
+
+            if (successMessage) {
+                showToast(successMessage, 'success');
+            }
+            if (errorMessage) {
+                showToast(errorMessage, 'error');
+            }
+        });
+
+        function loadNotifications() {
+            $.get('/Notifications/GetUnread', function (data) {
+                if (data && data.length > 0) {
+                    $('#notifBadge').text(data.length).show();
+                    let html = '';
+                    data.forEach(function (n) {
+                        html += `
+                        <div class="p-3 border-bottom notif-item" style="cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='white'" onclick="markRead(${n.NotificationId})">
+                            <div class="d-flex w-100 justify-content-between mb-1">
+                                <h6 class="mb-0 fw-bold text-primary" style="font-size: 0.85rem;">${n.Title}</h6>
+                                <small class="text-muted" style="font-size: 0.7rem;">${n.TimeAgo}</small>
+                            </div>
+                            <p class="mb-0 text-muted" style="font-size: 0.8rem; line-height: 1.3;">${n.Message}</p>
+                        </div>`;
+                    });
+                    $('#notifList').html(html);
+                } else {
+                    $('#notifBadge').hide();
+                    $('#notifList').html('<div class="p-4 text-center text-muted small"><i class="fa-regular fa-bell-slash fs-3 mb-2 opacity-50"></i><br/>No new notifications.</div>');
+                }
+            });
+        }
+
+        function markRead(id) {
+            $.post('/Notifications/MarkAsRead', { id: id }, function () {
+                loadNotifications();
+            });
+        }
+
+        $(document).ready(function () {
+            loadNotifications();
+            setInterval(loadNotifications, 15000); // Check every 15 seconds
+        });
+    </script>
+
+    @RenderSection("scripts", required: false)
+
+    <script>
+                document.getElementById("mobileNavToggle")?.addEventListener("click", function () {
+                    document.querySelector(".hr-sidebar").classList.toggle("active");
+                });
+    </script>
+</body>
+</html>

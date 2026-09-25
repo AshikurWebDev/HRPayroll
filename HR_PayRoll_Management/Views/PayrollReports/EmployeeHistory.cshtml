@@ -1,0 +1,76 @@
+@model IEnumerable<HR_PayRoll_Management.ViewModels.EmployeeSalaryHistoryVM>
+
+@{
+    ViewBag.Title = "Employee Salary History";
+}
+
+<div class="page-header mb-4">
+    <h1>Employee Salary History</h1>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        @using (Html.BeginForm("EmployeeHistory", "PayrollReports", FormMethod.Get, new { @class = "d-flex gap-2" }))
+        {
+            <select name="employeeId" class="form-select" required>
+                <option value="">-- Select Employee --</option>
+                @foreach (var emp in ViewBag.Employees)
+                {
+                    <option value="@emp.EmployeeId" @(Request.QueryString["employeeId"] == emp.EmployeeId.ToString() ? "selected" : "")>@emp.FullName</option>
+                }
+            </select>
+            <button type="submit" class="btn btn-primary">View History</button>
+        }
+    </div>
+</div>
+
+@if (Model != null && Model.Any())
+{
+    var first = Model.First();
+    <div class="alert alert-info d-flex align-items-center">
+        @if (!string.IsNullOrEmpty(first.PhotoPath))
+        {
+            <img src="@Url.Content(first.PhotoPath)" alt="@first.EmployeeName" class="rounded-circle me-3" style="width: 50px; height: 50px; object-fit: cover;" />
+        }
+        else
+        {
+            <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px; font-size: 20px;">
+                @first.EmployeeName.Substring(0, 1).ToUpper()
+            </div>
+        }
+        <div>
+            <h5 class="mb-1">@first.EmployeeName</h5>
+            <p class="mb-0">Department: @first.DepartmentName</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Month</th>
+                        <th>Year</th>
+                        <th>Gross Salary</th>
+                        <th>Net Salary</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(item.Month)</td>
+                            <td>@item.Year</td>
+                            <td>@item.GrossSalary.ToString("N2")</td>
+                            <td>@item.NetSalary.ToString("N2")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+else if (Model != null)
+{
+    <div class="alert alert-warning">No salary history found for the selected employee.</div>
+}

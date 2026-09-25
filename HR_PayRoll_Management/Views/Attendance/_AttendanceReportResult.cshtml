@@ -1,0 +1,190 @@
+@model HR_PayRoll_Management.ViewModels.AttendanceVM.AttendanceSummaryReportVM
+
+@functions
+{
+    public string FormatWorkingHours(double hours)
+    {
+        int totalMinutes = (int)(hours * 60);
+        int hour = totalMinutes / 60;
+        int minute = totalMinutes % 60;
+
+        return $"{hour}h {minute}m";
+    }
+}
+
+<div class="card mb-4">
+    <div class="card-body">
+        <h4>Monthly Attendance Report</h4>
+        <p>
+            <strong>Period:</strong>
+            @System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(Model.Month) @Model.Year
+        </p>
+        <p>
+            <strong>Department:</strong>
+            @(string.IsNullOrEmpty(Model.DepartmentName) ? "All Departments" : Model.DepartmentName)
+        </p>
+        <p>
+            <strong>Generated:</strong>
+            @Model.GeneratedDate.ToString("dd-MMM-yyyy")
+        </p>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-3">
+        <div class="dashboard-card p-3">
+            <p>Total Attendance</p>
+            <h3>@Model.TotalAttendance</h3>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="dashboard-card p-3">
+            <p>Present</p>
+            <h3>@Model.PresentCount</h3>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="dashboard-card p-3">
+            <p>Absent</p>
+            <h3>@Model.AbsentCount</h3>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="dashboard-card p-3">
+            <p>Late</p>
+            <h3>@Model.LateCount</h3>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-5">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="mb-3">Attendance Status Distribution</h5>
+                <canvas id="attendanceStatusChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-7">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="mb-3">Department Attendance Percentage</h5>
+                <canvas id="departmentAttendanceChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mt-4">
+    <div class="card-body">
+        <h5>Employee Attendance Summary</h5>
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Employee</th>
+                        <th>Department</th>
+                        <th>Present</th>
+                        <th>Absent</th>
+                        <th>Leave</th>
+                        <th>Late</th>
+                        <th>Attendance %</th>
+                        <th>Avg Working Hours</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.EmployeeReports != null)
+                    {
+                        foreach (var item in Model.EmployeeReports)
+                        {
+                            <tr>
+                                <td>@item.EmployeeName</td>
+                                <td>@item.DepartmentName</td>
+                                <td>@item.PresentDays</td>
+                                <td>@item.AbsentDays</td>
+                                <td>@item.LeaveDays</td>
+                                <td>@item.LateDays</td>
+                                <td>@Math.Round(item.AttendancePercentage, 0)%</td>
+                                <td>@FormatWorkingHours(item.AverageWorkingHours)</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    var statusCanvas = document.getElementById("attendanceStatusChart");
+    if (statusCanvas) {
+        new Chart(statusCanvas, {
+    type: "doughnut",
+    data: {
+        labels: ["Present", "Absent", "Leave"],
+        datasets: [{
+            data: [
+                @Model.PresentPercentage,
+                @Model.AbsentPercentage,
+                @Model.LeavePercentage
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: "bottom"
+            },
+            tooltip: {
+                callbacks: {
+                    label: function (context) {
+                        return context.label + ": " + context.raw + "%";
+                    }
+                }
+            }
+        }
+    }
+});
+    }
+
+    var departmentCanvas = document.getElementById("departmentAttendanceChart");
+    if (departmentCanvas) {
+        new Chart(departmentCanvas, {
+    type: "bar",
+    data: {
+        labels: [
+            @Html.Raw(string.Join(",", Model.DepartmentReports.Select(x => "\"" + x.DepartmentName + "\"")))
+        ],
+        datasets: [{
+            label: "Attendance Percentage",
+            data: [
+                @string.Join(",", Model.DepartmentReports.Select(x => Math.Round(x.AttendancePercentage, 0)))
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 100,
+                ticks: {
+                    callback: function (value) {
+                        return value + "%";
+                    }
+                }
+            }
+        }
+    }
+});
+    }
+})();
+</script>

@@ -1,0 +1,67 @@
+﻿@model HR_PayRoll_Management.ViewModels.DesignationVM.DesignationViewModel
+
+@{
+    ViewBag.Title = "Create Designation";
+}
+
+<div class="page-header d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1>Add Designation</h1>
+        <p class="text-muted mb-0">Create a new employee designation.</p>
+    </div>
+
+    <a href="@Url.Action("Index", "Designations")" class="btn btn-secondary">
+        <i class="fa-solid fa-arrow-left me-2"></i> Back
+    </a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        @using (Html.BeginForm())
+        {
+            @Html.AntiForgeryToken()
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        @Html.LabelFor(x => x.DesignationName, new { @class = "form-label fw-semibold" })
+                        @Html.TextBoxFor(x => x.DesignationName, new { @class = "form-control", placeholder = "Enter designation name" })
+                        @Html.ValidationMessageFor(x => x.DesignationName, "", new { @class = "text-danger small" })
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold d-block">Status</label>
+                        <div class="form-check form-switch mt-2">
+                            @Html.CheckBoxFor(x => x.IsActive, new { @class = "form-check-input", role = "switch", id = "flexSwitchActive" })
+                            <label class="form-check-label ms-1" for="flexSwitchActive">Active</label>
+                        </div>
+                        @Html.ValidationMessageFor(x => x.IsActive, "", new { @class = "text-danger small" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                @Html.LabelFor(x => x.Description, new { @class = "form-label fw-semibold" })
+                @Html.TextAreaFor(x => x.Description, new { @class = "form-control", rows = "4", placeholder = "Enter brief job scope or description" })
+                @Html.ValidationMessageFor(x => x.Description, "", new { @class = "text-danger small" })
+            </div>
+
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa-solid fa-save me-2"></i> Save Designation
+                </button>
+
+                <a href="@Url.Action("Index", "Designations")" class="btn btn-outline-secondary ms-2">
+                    Cancel
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+@section scripts {
+    <script src="~/Scripts/jquery.validate.js"></script>
+    <script src="~/Scripts/jquery.validate.unobtrusive.js"></script>
+}

@@ -1,0 +1,68 @@
+﻿@model HR_PayRoll_Management.ViewModels.DepartmentVM.DepartmentViewModel
+
+@{
+    ViewBag.Title = "Edit Department";
+}
+
+<div class="page-header d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1>Edit Department</h1>
+        <p class="text-muted mb-0">Update department information.</p>
+    </div>
+
+    <a href="@Url.Action("Index", "Departments")" class="btn btn-secondary">
+        <i class="fa-solid fa-arrow-left me-2"></i> Back
+    </a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        @using (Html.BeginForm())
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(x => x.DepartmentId)
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        @Html.LabelFor(x => x.DepartmentName, new { @class = "form-label fw-semibold" })
+                        @Html.TextBoxFor(x => x.DepartmentName, new { @class = "form-control", placeholder = "Enter department name" })
+                        @Html.ValidationMessageFor(x => x.DepartmentName, "", new { @class = "text-danger small" })
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold d-block">Status</label>
+                        <div class="form-check form-switch mt-2">
+                            @Html.CheckBoxFor(x => x.IsActive, new { @class = "form-check-input", role = "switch", id = "deptSwitchActive" })
+                            <label class="form-check-label ms-1" for="deptSwitchActive">Active</label>
+                        </div>
+                        @Html.ValidationMessageFor(x => x.IsActive, "", new { @class = "text-danger small" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                @Html.LabelFor(x => x.Description, new { @class = "form-label fw-semibold" })
+                @Html.TextAreaFor(x => x.Description, new { @class = "form-control", rows = "4", placeholder = "Department description" })
+                @Html.ValidationMessageFor(x => x.Description, "", new { @class = "text-danger small" })
+            </div>
+
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa-solid fa-pen me-2"></i> Update Department
+                </button>
+
+                <a href="@Url.Action("Index", "Departments")" class="btn btn-outline-secondary ms-2">
+                    Cancel
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+@section scripts {
+    <script src="~/Scripts/jquery.validate.js"></script>
+    <script src="~/Scripts/jquery.validate.unobtrusive.js"></script>
+}

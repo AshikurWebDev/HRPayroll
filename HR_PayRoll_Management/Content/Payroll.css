@@ -1,0 +1,187 @@
+.payslip-container {
+    width: 210mm;
+    min-height: 297mm;
+    padding: 15mm;
+    background: white;
+    margin: auto;
+    box-sizing: border-box;
+}
+
+.payslip-header {
+    text-align: center;
+    border-bottom: 2px solid #000;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+
+.section-title {
+    font-size: 16px;
+    font-weight: bold;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 5px;
+    margin-bottom: 15px;
+}
+
+.salary-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+    .salary-table th,
+    .salary-table td {
+        border: 1px solid #ddd;
+        padding: 8px;
+    }
+
+    .salary-table th {
+        background: #f5f5f5;
+    }
+
+.amount {
+    text-align: right;
+}
+
+.net-salary {
+    margin-top: 30px;
+    border: 2px solid #000;
+    padding: 15px;
+    text-align: center;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+
+.signature-section {
+    margin-top: 80px;
+}
+
+.signature-table {
+    width: 100%;
+    margin-top: 50px;
+    border: none;
+}
+
+
+    .signature-table td {
+        width: 50%;
+        text-align: center;
+        border: none;
+        vertical-align: top;
+    }
+
+
+.no-print {
+    margin-top: 20px;
+}
+
+
+@media screen {
+    .payslip-container {
+        margin-top: 20px;
+    }
+}
+
+
+@media print {
+    @page {
+        size: A4;
+        margin: 0; /* Important to hide browser URL header and pagination footer */
+    }
+
+    html,
+    body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background-color: #fff;
+    }
+
+    body * {
+        visibility: hidden;
+    }
+
+    /* Hide layout elements from _Layout.cshtml */
+    .sidebar, .navbar, .footer, header, aside {
+        display: none !important;
+    }
+    
+    .content-wrapper, .main-content {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+    }
+
+    .payslip-container,
+    .payslip-container * {
+        visibility: visible;
+    }
+
+    .payslip-container {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 210mm;
+        height: 296mm; /* Exactly A4 height to prevent second page spill */
+        padding: 15mm 20mm !important; /* Simulates standard print margins */
+        margin: 0;
+        box-sizing: border-box;
+        page-break-after: avoid;
+        page-break-inside: avoid;
+    }
+
+    .no-print {
+        display: none !important;
+    }
+
+    .signature-section {
+        margin-top: 40px;
+    }
+
+    .net-salary {
+        margin-top: 25px;
+        padding: 15px;
+        border: 2px solid #000;
+        background: #f8f9fa !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .row {
+        margin: 0 !important;
+    }
+
+    .salary-table td,
+    .salary-table th {
+        padding: 8px 12px;
+    }
+    
+    .bg-light {
+        background-color: #f8f9fa !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .table-success th {
+        background-color: #d1e7dd !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .table-danger th {
+        background-color: #f8d7da !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .signature-table {
+        display: table !important;
+        width: 100% !important;
+    }
+
+    .signature-table td {
+        display: table-cell !important;
+        width: 50% !important;
+    }
+}

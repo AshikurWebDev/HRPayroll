@@ -1,0 +1,429 @@
+﻿@model HR_PayRoll_Management.ViewModels.Dashboard.DashboardVM
+@{
+    ViewBag.Title = "Dashboard";
+}
+
+<style>
+    .welcome-banner {
+        background: linear-gradient(135deg, #0A4252 0%, #0E5A6F 100%);
+        color: white;
+        padding: 1.5rem 2rem;
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 20px rgba(78, 115, 223, 0.35);
+    }
+
+    .stat-card {
+        border-radius: 12px;
+        border: none;
+        border-left: 5px solid #4e73df;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+        }
+
+        .stat-card.dept-card {
+            border-left-color: #1cc88a;
+        }
+
+        .stat-card.leave-card {
+            border-left-color: #f6c23e;
+        }
+
+        .stat-card.payroll-card {
+            border-left-color: #e74a3b;
+        }
+
+    .chart-card {
+        border-radius: 12px;
+        border: none;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.07);
+    }
+</style>
+
+<!-- Welcome Banner -->
+<div class="welcome-banner d-flex justify-content-between align-items-center" style="position: relative; overflow: hidden;">
+    <div id="three-container" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; opacity: 0.3;"></div>
+    <div>
+        <h4 class="mb-1 fw-bold">Welcome back, @User.Identity.Name! 👋</h4>
+        <p class="mb-0 opacity-75">Here is what's happening in your organization today.</p>
+    </div>
+    <div class="text-end d-none d-md-block" style="position: relative; z-index: 1;">
+        <h6 class="mb-0 opacity-75">@DateTime.Now.ToString("dddd, dd MMMM yyyy")</h6>
+    </div>
+</div>
+
+<!-- KPI Stat Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card card shadow-sm p-3 bg-white">
+            <div class="d-flex align-items-center">
+                <div class="rounded-circle bg-secondary p-3 bg-opacity-10 text-primary me-3" >
+                    <i class="fa-solid fa-users fs-4"></i>
+                </div>
+                <div>
+                    <p class="text-muted mb-0 small fw-semibold">Total Employees</p>
+                    <h3 class="fw-bolder mb-0">@Model.TotalEmployees</h3>
+                    <small class="text-success"><i class="fa-solid fa-circle-check me-1"></i>@Model.ActiveEmployees Active</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card dept-card card shadow-sm p-3 bg-white">
+            <div class="d-flex align-items-center">
+                <div class="rounded-circle p-3 bg-success bg-opacity-10 text-success me-3">
+                    <i class="fa-solid fa-building-user fs-4"></i>
+                </div>
+                <div>
+                    <p class="text-muted mb-0 small fw-semibold">Departments</p>
+                    <h3 class="fw-bolder mb-0">@Model.TotalDepartments</h3>
+                    <small class="text-muted">@Model.TotalDesignations Designations</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card leave-card card shadow-sm p-3 bg-white">
+            <div class="d-flex align-items-center">
+                <div class="rounded-circle p-3 bg-warning bg-opacity-10 text-warning me-3">
+                    <i class="fa-solid fa-calendar-day fs-4"></i>
+                </div>
+                <div>
+                    <p class="text-muted mb-0 small fw-semibold">Pending Leaves</p>
+                    <h3 class="fw-bolder mb-0">@Model.PendingLeaves</h3>
+                    <small class="text-warning">Awaiting approval</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (!Model.IsManagerView)
+    {
+        <div class="col-xl-3 col-md-6">
+            <div class="stat-card payroll-card card shadow-sm p-3 bg-white">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-circle p-3 bg-danger bg-opacity-10 text-danger me-3">
+                        <i class="fa-solid fa-money-bill-wave fs-4"></i>
+                    </div>
+                    <div>
+                        <p class="text-muted mb-0 small fw-semibold">Monthly Payroll</p>
+                        <h3 class="fw-bolder mb-0">৳@Model.MonthlyPayroll.ToString("N0")</h3>
+                        <small class="text-muted">Latest cycle net pay</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Charts Row 1 -->
+<div class="row g-3 mb-3">
+    <!-- Chart 1: Payroll Expense Trend (Line) -->
+    @if (!Model.IsManagerView)
+    {
+        <div class="col-xl-8">
+            <div class="chart-card card p-3 h-100">
+                <h6 class="fw-bold mb-3 text-muted text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.05em;">
+                    <i class="fa-solid fa-chart-line me-2 text-primary"></i>Payroll Expense Trend
+                </h6>
+                <canvas id="payrollExpenseChart" height="100"></canvas>
+            </div>
+        </div>
+    }
+
+    <!-- Chart 2: Attendance Today (Doughnut) -->
+    <div class="col-xl-4">
+        <div class="chart-card card p-3 h-100">
+            <h6 class="fw-bold mb-3 text-muted text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.05em;">
+                <i class="fa-solid fa-clock me-2 text-success"></i>Today's Attendance
+            </h6>
+            <canvas id="attendanceChart" height="180"></canvas>
+            <div class="text-center mt-2">
+                <small class="text-success me-3"><i class="fa-solid fa-circle"></i> Present: @Model.PresentCount</small>
+                <small class="text-danger"><i class="fa-solid fa-circle"></i> Absent: @Model.AbsentCount</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row 2 -->
+<div class="row g-3 mb-3">
+    <!-- Chart 3: Payroll Overview Grouped Bar -->
+    @if (!Model.IsManagerView)
+    {
+        <div class="col-xl-6">
+            <div class="chart-card card p-3">
+                <h6 class="fw-bold mb-3 text-muted text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.05em;">
+                    <i class="fa-solid fa-chart-bar me-2 text-warning"></i>Payroll Overview (Gross vs Net)
+                </h6>
+                <canvas id="payrollOverviewChart" height="140"></canvas>
+            </div>
+        </div>
+    }
+
+    <!-- Chart 4: Department Distribution (Bar) -->
+    @if (!Model.IsManagerView)
+    {
+        <div class="col-xl-6">
+            <div class="chart-card card p-3">
+                <h6 class="fw-bold mb-3 text-muted text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.05em;">
+                    <i class="fa-solid fa-building me-2 text-info"></i>Employees by Department
+                </h6>
+                <canvas id="deptChart" height="140"></canvas>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Chart 5: Employee Growth + Recent Payroll Table -->
+<div class="row g-3 mb-3">
+    <!-- Chart 5: Employee Growth (Line) -->
+    <div class="col-xl-5">
+        <div class="chart-card card p-3 h-100">
+            <h6 class="fw-bold mb-3 text-muted text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.05em;">
+                <i class="fa-solid fa-user-plus me-2 text-danger"></i>Employee Growth by Year
+            </h6>
+            <canvas id="growthChart" height="180"></canvas>
+        </div>
+    </div>
+
+    <!-- Recent Payroll Table -->
+    @if (!Model.IsManagerView)
+    {
+        <div class="col-xl-7">
+            <div class="chart-card card h-100">
+                <div class="card-header bg-white border-0 pt-3 pb-0">
+                    <h6 class="fw-bold text-muted text-uppercase mb-0" style="font-size: 0.75rem; letter-spacing: 0.05em;">
+                        <i class="fa-solid fa-table me-2 text-secondary"></i>Recent Salary Slips
+                    </h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-3">Employee</th>
+                                    <th>Department</th>
+                                    <th>Gross</th>
+                                    <th>Net</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.RecentPayrolls != null && Model.RecentPayrolls.Any())
+                                {
+                                    foreach (var rp in Model.RecentPayrolls)
+                                    {
+                                        <tr>
+                                            <td class="ps-3 fw-semibold">
+                                                @if (!string.IsNullOrEmpty(rp.PhotoPath))
+                                                {
+                                                    <img src="@Url.Content(rp.PhotoPath)" class="rounded-circle me-2" style="width: 28px; height: 28px; object-fit: cover;" />
+                                                }
+                                                @rp.EmployeeName
+                                            </td>
+                                            <td class="text-muted small">@rp.DepartmentName</td>
+                                            <td>৳@rp.GrossSalary.ToString("N0")</td>
+                                            <td class="fw-bold text-success">৳@rp.NetSalary.ToString("N0")</td>
+                                            <td>
+                                                @if (rp.Status == "Paid")
+                                                {
+                                                    <span class="badge bg-success">Paid</span>
+                                                }
+                                                else if (rp.Status == "Approved")
+                                                {
+                                                    <span class="badge bg-primary">Approved</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-warning text-dark">@rp.Status</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted py-4">No payroll data yet.</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+        const gridColor = 'rgba(0,0,0,0.05)';
+
+        // Chart 1 — Payroll Expense Trend (Line)
+        new Chart(document.getElementById('payrollExpenseChart'), {
+            type: 'line',
+            data: {
+                labels: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.PayrollMonths)),
+                datasets: [{
+                    label: 'Net Payroll (\u09F3)',
+                    data: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.PayrollAmounts)),
+                    borderColor: '#4e73df',
+                    backgroundColor: 'rgba(78,115,223,0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 5,
+                    pointHoverRadius: 7
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { grid: { color: gridColor }, ticks: { callback: v => '৳' + v.toLocaleString() } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+
+        // Chart 2 — Attendance Doughnut
+        new Chart(document.getElementById('attendanceChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Present', 'Absent'],
+                datasets: [{
+                    data: [@Model.PresentCount, @Model.AbsentCount],
+                    backgroundColor: ['#1cc88a', '#e74a3b'],
+                    borderWidth: 0,
+                    hoverOffset: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                cutout: '70%',
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        @if (!Model.IsManagerView)
+        {
+            <text>
+            // Chart 3 — Payroll Overview Grouped Bar
+            new Chart(document.getElementById('payrollOverviewChart'), {
+                type: 'bar',
+                data: {
+                    labels: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.PayrollLabels)),
+                    datasets: [
+                        {
+                            label: 'Gross (\u09F3)',
+                            data: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.PayrollGross)),
+                            backgroundColor: 'rgba(78,115,223,0.7)',
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'Deductions (\u09F3)',
+                            data: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.PayrollDeduction)),
+                            backgroundColor: 'rgba(231,74,59,0.7)',
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'Net (\u09F3)',
+                            data: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.PayrollNet)),
+                            backgroundColor: 'rgba(28,200,138,0.7)',
+                            borderRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { position: 'top' } },
+                    scales: {
+                        y: { grid: { color: gridColor }, ticks: { callback: v => '৳' + v.toLocaleString() } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+            </text>
+        }
+
+        // Chart 4 — Department Distribution (Horizontal Bar)
+        new Chart(document.getElementById('deptChart'), {
+            type: 'bar',
+            data: {
+                labels: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.DepartmentNames)),
+                datasets: [{
+                    label: 'Employees',
+                    data: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.DepartmentEmployeeCount)),
+                    backgroundColor: ['#4e73df', '#1cc88a', '#f6c23e', '#e74a3b', '#36b9cc', '#858796'],
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { color: gridColor }, ticks: { stepSize: 1 } },
+                    y: { grid: { display: false } }
+                }
+            }
+        });
+
+        // Chart 5 — Employee Growth (Line)
+        new Chart(document.getElementById('growthChart'), {
+            type: 'line',
+            data: {
+                labels: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.EmployeeGrowthLabels)),
+                datasets: [{
+                    label: 'New Employees',
+                    data: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.EmployeeGrowthCount)),
+                    borderColor: '#e74a3b',
+                    backgroundColor: 'rgba(231,74,59,0.08)',
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 5,
+                    pointHoverRadius: 7
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { grid: { color: gridColor }, ticks: { stepSize: 1 } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.net.min.js"></script>
+    <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                    if (typeof VANTA !== 'undefined') {
+                        VANTA.NET({
+                            el: "#three-container",
+                            mouseControls: true,
+                            touchControls: true,
+                            gyroControls: false,
+                            minHeight: 100.00,
+                            minWidth: 200.00,
+                            scale: 1.00,
+                            scaleMobile: 1.00,
+                            color: 0x8cc4ff,
+                            backgroundColor: 0x4e73df,
+                            points: 12.00,
+                            maxDistance: 22.00,
+                            spacing: 16.00
+                        });
+                    }
+                });
+    </script>
+}

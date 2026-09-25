@@ -1,0 +1,141 @@
+﻿@model HR_PayRoll_Management.ViewModels.AttendanceVM.AttendanceSummaryReportVM
+@{
+    ViewBag.Title = "Attendance Report";
+}
+
+@section styles {
+    <link href="~/Content/Attendance.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4"></script>
+}
+
+<div class="page-header">
+    <div>
+        <h1>Attendance History & Report</h1>
+        <p>Monthly employee attendance analysis.</p>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form id="attendanceFilterForm" onsubmit="event.preventDefault(); loadReport();">
+            <div class="row">
+            @if (User.IsInRole("Manager") && !User.IsInRole("Admin") && !User.IsInRole("HR Manager"))
+            {
+                int mgrDeptId = 0;
+                using (var db = new HR_PayRoll_Management.DAL.AppDbContext())
+                {
+                    var u = System.Linq.Queryable.FirstOrDefault(db.Users.Include("Employee"), x => x.Username == User.Identity.Name);
+                    if (u != null && u.Employee != null) { mgrDeptId = u.Employee.DepartmentId; }
+                }
+                <input type="hidden" id="hiddenManagerDeptId" value="@mgrDeptId" />
+            }
+                <div class="col-md-4">
+                    <label class="form-label">Month</label>
+                    <select name="month" id="filterMonth" class="form-select">
+                        @for (int i = 1; i <= 12; i++)
+                        {
+                            <option value="@i" @(Model.Month == i ? "selected" : "")>
+                                @System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(i)
+                            </option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Year</label>
+                    <select name="year" id="filterYear" class="form-select">
+                        @foreach (var y in ViewBag.Years)
+                        {
+                            <option value="@y" @(Model.Year == y ? "selected" : "")>
+                                @y
+                            </option>
+                        }
+                    </select>
+                </div>
+
+                @if (User.IsInRole("Admin") || User.IsInRole("HR Manager") || User.IsInRole("HR Officer")) {
+                <div class="col-md-4">
+                    <label class="form-label">Department</label>
+                    <select name="departmentId" id="filterDept" class="form-select">
+                        <option value="">All Departments</option>
+                        @foreach (var dept in ViewBag.Departments)
+                        {
+                            <option value="@dept.Value">@dept.Text</option>
+                        }
+                    </select>
+                </div>
+                }
+            </div>
+
+            <div class="mt-3">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa-solid fa-filter"></i> Generate Report
+                </button>
+
+                <a href="@Url.Action("ExportExcel", "Attendance", new { month = Model.Month, year = Model.Year })"
+                   id="exportExcelBtn" class="btn btn-success ms-2">
+                    <i class="fa-solid fa-file-excel"></i> Export Excel
+                </a>
+
+                <a href="@Url.Action("ExportPdf", "Attendance", new { month = Model.Month, year = Model.Year })"
+                   id="exportPdfBtn" class="btn btn-danger ms-2">
+                    <i class="fa-solid fa-file-pdf"></i> Export PDF
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="reportResult">
+    @Html.Partial("_AttendanceReportResult", Model)
+</div>
+
+@section scripts {
+
+    <script>
+        function updateExportLinks() {
+            var m = $("#filterMonth").val();
+            var y = $("#filterYear").val();
+            var d = $("#filterDept").val();
+
+            var excelUrl = '@Url.Action("ExportExcel", "Attendance")' + '?month=' + m + '&year=' + y;
+            var pdfUrl = '@Url.Action("ExportPdf", "Attendance")' + '?month=' + m + '&year=' + y;
+
+            if (d) {
+                excelUrl += '&departmentId=' + d;
+                pdfUrl += '&departmentId=' + d;
+            }
+
+            $("#exportExcelBtn").attr("href", excelUrl);
+            $("#exportPdfBtn").attr("href", pdfUrl);
+        }
+
+        function loadReport() {
+            updateExportLinks();
+            $.ajax({
+                url: '@Url.Action("LoadAttendanceReport", "Attendance")',
+                type: "GET",
+                data: {
+                    month: $("#filterMonth").val(),
+                    year: $("#filterYear").val(),
+                    departmentId: $("#filterDept").val()
+                },
+                success: function (data) {
+                    $("#reportResult").html(data);
+                },
+                error: function () {
+                    alert("Report loading failed");
+                }
+            });
+        }
+
+        $("#filterMonth, #filterYear, #filterDept").change(function () {
+            loadReport();
+        });
+        
+        // Initial setup
+        updateExportLinks();
+    </script>
+}
+
+

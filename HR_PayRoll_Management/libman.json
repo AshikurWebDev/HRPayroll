@@ -1,0 +1,18 @@
+{
+  "version": "3.0",
+  "defaultProvider": "cdnjs",
+  "libraries": [
+    {
+      "library": "bootstrap@5.3.3",
+      "destination": "lib/bootstrap/"
+    },
+    {
+      "library": "Chart.js@4.5.1",
+      "destination": "Scripts/lib/chartjs/"
+    },
+    {
+      "library": "three.js@0.186.0",
+      "destination": "Scripts/lib/threejs/"
+    }
+  ]
+}

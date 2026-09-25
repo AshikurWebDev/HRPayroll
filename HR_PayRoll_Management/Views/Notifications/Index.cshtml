@@ -1,0 +1,45 @@
+@model IEnumerable<HR_PayRoll_Management.Models.Notification>
+@{
+    ViewBag.Title = "Notice Board";
+}
+
+<div class="page-header mb-4">
+    <h1>Send Notice to All Employees</h1>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form action="@Url.Action("SendNotice", "Notifications")" method="post">
+            <div class="mb-3">
+                <label class="form-label">Title</label>
+                <input type="text" name="Title" class="form-control" required />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Message</label>
+                <textarea name="Message" class="form-control" rows="3" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary"><i class="fa-solid fa-paper-plane"></i> Send Notice</button>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header bg-white">
+        <h5 class="mb-0">Recent Notices</h5>
+    </div>
+    <ul class="list-group list-group-flush">
+        @foreach (var n in Model)
+        {
+            <li class="list-group-item">
+                <h6 class="fw-bold">@n.Title</h6>
+                <p class="mb-1">@n.Message</p>
+                <small class="text-muted">@n.CreatedAt.ToString("g")</small>
+            </li>
+        }
+    </ul>
+</div>

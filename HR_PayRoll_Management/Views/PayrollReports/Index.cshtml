@@ -1,0 +1,239 @@
+@model HR_PayRoll_Management.ViewModels.PayrollReportDashboardVM
+
+@{
+    ViewBag.Title = "Payroll Reports";
+}
+
+<div class="page-header d-flex justify-content-between align-items-center mb-4">
+    <h1>Payroll Reports Dashboard</h1>
+    @using (Html.BeginForm("Index", "PayrollReports", FormMethod.Get, new { @class = "d-flex gap-2" }))
+    {
+        <select name="month" class="form-select">
+            @for (int i = 1; i <= 12; i++)
+            {
+                <option value="@i" @(ViewBag.SelectedMonth == i ? "selected" : "")>@System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(i)</option>
+            }
+        </select>
+        <select name="year" class="form-select">
+            @for (int i = DateTime.Now.Year; i >= DateTime.Now.Year - 5; i--)
+            {
+                <option value="@i" @(ViewBag.SelectedYear == i ? "selected" : "")>@i</option>
+            }
+        </select>
+        <button type="submit" class="btn btn-primary">Filter</button>
+    }
+</div>
+
+<ul class="nav nav-tabs" id="reportTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="monthly-tab" data-bs-toggle="tab" data-bs-target="#monthly" type="button" role="tab">Monthly Overview</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="department-tab" data-bs-toggle="tab" data-bs-target="#department" type="button" role="tab">Department Salary</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tax-tab" data-bs-toggle="tab" data-bs-target="#tax" type="button" role="tab">Tax Report</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="deduction-tab" data-bs-toggle="tab" data-bs-target="#deduction" type="button" role="tab">Deductions Report</button>
+    </li>
+</ul>
+
+<div class="tab-content mt-4" id="reportTabsContent">
+    <!-- Monthly Overview Tab -->
+    <div class="tab-pane fade show active" id="monthly" role="tabpanel">
+        <div class="card mb-4">
+            <div class="card-body">
+                <canvas id="payrollExpenseChart" height="100"></canvas>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>Year</th>
+                            <th>Total Employees</th>
+                            <th>Total Gross</th>
+                            <th>Total Deductions</th>
+                            <th>Total Net</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.MonthlyReports)
+                        {
+                            <tr>
+                                <td>@System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(item.Month)</td>
+                                <td>@item.Year</td>
+                                <td>@item.TotalEmployees</td>
+                                <td>@item.TotalGrossAmount.ToString("N2")</td>
+                                <td>@item.TotalDeductions.ToString("N2")</td>
+                                <td>@item.TotalNetAmount.ToString("N2")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Department Salary Tab -->
+    <div class="tab-pane fade" id="department" role="tabpanel">
+        <div class="card">
+            <div class="card-body">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Department</th>
+                            <th>Employee Count</th>
+                            <th>Total Gross</th>
+                            <th>Total Net</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.DepartmentReports)
+                        {
+                            <tr>
+                                <td>@item.DepartmentName</td>
+                                <td>@item.EmployeeCount</td>
+                                <td>@item.TotalGrossAmount.ToString("N2")</td>
+                                <td>@item.TotalNetAmount.ToString("N2")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tax Report Tab -->
+    <div class="tab-pane fade" id="tax" role="tabpanel">
+        <div class="card">
+            <div class="card-body">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Employee Name</th>
+                            <th>Department</th>
+                            <th>Gross Salary</th>
+                            <th>Tax Deduction</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.TaxReports)
+                        {
+                            <tr>
+                                <td>@item.EmployeeName</td>
+                                <td>@item.DepartmentName</td>
+                                <td>@item.GrossSalary.ToString("N2")</td>
+                                <td>@item.TaxDeduction.ToString("N2")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Deductions Report Tab -->
+    <div class="tab-pane fade" id="deduction" role="tabpanel">
+        <div class="card">
+            <div class="card-body">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Employee Name</th>
+                            <th>Department</th>
+                            <th>Attendance Deduction</th>
+                            <th>Leave Deduction</th>
+                            <th>Total Deduction</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.DeductionReports)
+                        {
+                            <tr>
+                                <td>@item.EmployeeName</td>
+                                <td>@item.DepartmentName</td>
+                                <td>@item.AttendanceDeduction.ToString("N2")</td>
+                                <td>@item.LeaveDeduction.ToString("N2")</td>
+                                <td>@item.TotalDeduction.ToString("N2")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var ctx = document.getElementById("payrollExpenseChart").getContext("2d");
+            
+            var labels = [];
+            var grossData = [];
+            var netData = [];
+            var deductionData = [];
+
+            @foreach(var item in Model.MonthlyReports.OrderBy(x => x.Year).ThenBy(x => x.Month))
+            {
+                <text>
+                labels.push("@System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetAbbreviatedMonthName(item.Month) @item.Year");
+                grossData.push(@item.TotalGrossAmount);
+                netData.push(@item.TotalNetAmount);
+                deductionData.push(@item.TotalDeductions);
+                </text>
+            }
+
+            var chart = new Chart(ctx, {
+                type: "line",
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: "Gross Payroll",
+                            data: grossData,
+                            borderColor: "rgba(54, 162, 235, 1)",
+                            backgroundColor: "rgba(54, 162, 235, 0.2)",
+                            tension: 0.3,
+                            fill: true
+                        },
+                        {
+                            label: "Net Payroll",
+                            data: netData,
+                            borderColor: "rgba(75, 192, 192, 1)",
+                            backgroundColor: "rgba(75, 192, 192, 0.2)",
+                            tension: 0.3,
+                            fill: true
+                        },
+                        {
+                            label: "Deductions",
+                            data: deductionData,
+                            borderColor: "rgba(255, 99, 132, 1)",
+                            backgroundColor: "rgba(255, 99, 132, 0.2)",
+                            tension: 0.3,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: "Payroll Expense Trend"
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+}

@@ -1,0 +1,105 @@
+@model HR_PayRoll_Management.Models.User
+
+@{
+    ViewBag.Title = "My Profile";
+}
+
+<div class="page-header mb-4">
+    <h1>My Profile</h1>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card mb-4 text-center">
+            <div class="card-body">
+                @if (Model.Employee != null && !string.IsNullOrEmpty(Model.Employee.PhotoPath))
+                {
+                    <img src="@Url.Content(Model.Employee.PhotoPath)" alt="Profile Image" class="rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;" />
+                }
+                else
+                {
+                    <img src="~/Content/Images/default-avatar.png" alt="Profile Image" class="rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;" />
+                }
+
+                @if (Model.Employee != null)
+                {
+                    <h5 class="card-title">@Model.Employee.FullName</h5>
+                    <p class="text-muted">@Model.Employee.EmailAddress</p>
+                    
+                    using(Html.BeginForm("UpdateProfileImage", "Users", FormMethod.Post, new { enctype = "multipart/form-data", @class = "mt-3" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        <div class="mb-3 text-start">
+                            <label class="form-label">Update Profile Image</label>
+                            <input type="file" class="form-control" name="profileImage" accept="image/*" required />
+                        </div>
+                        <button type="submit" class="btn btn-sm btn-primary w-100">Upload Image</button>
+                    }
+                }
+                else
+                {
+                    <h5 class="card-title">@Model.Username</h5>
+                    <p class="text-muted">Admin User</p>
+                    <p class="small text-danger">No Employee mapped to this account.</p>
+                }
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title mb-4">Account Information</h5>
+                <div class="row mb-3">
+                    <div class="col-sm-3 fw-bold">Username</div>
+                    <div class="col-sm-9">@Model.Username</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3 fw-bold">Role</div>
+                    <div class="col-sm-9"><span class="badge bg-primary">@(Model.Role != null ? Model.Role.RoleName : "No Role")</span></div>
+                </div>
+                
+                @if (Model.Employee != null)
+                {
+                    <hr />
+                    <h5 class="card-title mb-4">Edit Personal Information</h5>
+                    using (Html.BeginForm("UpdateProfileInfo", "Users", FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.Hidden("EmployeeId", Model.EmployeeId)
+                        
+                        <div class="row mb-3">
+                            <label class="col-sm-3 col-form-label fw-bold">Full Name</label>
+                            <div class="col-sm-9">
+                                <input type="text" name="FullName" class="form-control" value="@Model.Employee.FullName" required />
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <label class="col-sm-3 col-form-label fw-bold">Phone Number</label>
+                            <div class="col-sm-9">
+                                <input type="text" name="Phone" class="form-control" value="@Model.Employee.Phone" required />
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <label class="col-sm-3 col-form-label fw-bold">Date of Birth</label>
+                            <div class="col-sm-9">
+                                <input type="date" name="DateOfBirth" class="form-control" value="@Model.Employee.DateOfBirth.ToString("yyyy-MM-dd")" required />
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-sm-3 fw-bold">Joining Date</div>
+                            <div class="col-sm-9">@Model.Employee.JoiningDate.ToString("dd MMM yyyy")</div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-sm-3 fw-bold">Gender</div>
+                            <div class="col-sm-9">@Model.Employee.Gender</div>
+                        </div>
+                        <div class="text-end">
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>

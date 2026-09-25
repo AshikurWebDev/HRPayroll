@@ -1,0 +1,369 @@
+﻿@model HR_PayRoll_Management.ViewModels.SalaryVM.SalaryStructureViewModel
+
+
+@{
+    ViewBag.Title = "Edit Salary Structure";
+}
+
+
+
+<div class="page-header d-flex justify-content-between align-items-center mb-4">
+
+
+    <div>
+
+        <h1>Edit Salary Structure</h1>
+
+        <p class="text-muted mb-0">
+            Update employee salary information.
+        </p>
+
+    </div>
+
+
+
+    <a href="@Url.Action("Index","SalaryStructure")"
+       class="btn btn-secondary">
+
+        <i class="fa-solid fa-arrow-left me-2"></i>
+
+        Back
+
+    </a>
+
+
+</div>
+
+
+
+
+
+<div class="card shadow-sm p-4">
+
+
+
+    @using (Html.BeginForm(
+        "Edit",
+        "SalaryStructure",
+        FormMethod.Post))
+    {
+
+        @Html.AntiForgeryToken()
+
+
+        @Html.HiddenFor(x => x.SalaryStructureId)
+
+        @Html.HiddenFor(x => x.EmployeeId)
+
+
+
+
+
+        <!-- Employee Information -->
+
+        <div class="d-flex align-items-center mb-4">
+
+
+            <img src="@(string.IsNullOrEmpty(Model.PhotoPath)
+        ? Url.Content("~/Content/Images/default-user.png")
+        : Url.Content(Model.PhotoPath))"
+                 class="rounded-circle me-3"
+                 style="
+             width:80px;
+             height:80px;
+             object-fit:cover;
+             " />
+
+
+
+            <div>
+
+
+                <h4 class="mb-1">
+
+                    @Model.EmployeeName
+
+                </h4>
+
+
+                <span class="text-muted">
+
+                    Employee Salary Structure
+
+                </span>
+
+
+            </div>
+
+
+        </div>
+
+
+
+
+
+
+
+        <div class="row g-3">
+
+
+
+            <div class="col-md-6">
+
+
+                <label class="form-label fw-semibold">
+
+                    Basic Salary
+
+                </label>
+
+
+                @Html.TextBoxFor(
+                x => x.BasicSalary,
+                new
+                {
+                    @class = "form-control",
+                    type = "number"
+                })
+
+
+
+            </div>
+
+
+
+
+
+
+            <div class="col-md-6">
+
+
+                <label class="form-label fw-semibold">
+
+                    House Rent
+
+                </label>
+
+
+                @Html.TextBoxFor(
+                x => x.HouseRent,
+                new
+                {
+                    @class = "form-control",
+                    type = "number"
+                })
+
+
+            </div>
+
+
+
+
+
+
+            <div class="col-md-6">
+
+
+                <label class="form-label fw-semibold">
+
+                    Medical Allowance
+
+                </label>
+
+
+                @Html.TextBoxFor(
+                x => x.MedicalAllowance,
+                new
+                {
+                    @class = "form-control",
+                    type = "number"
+                })
+
+
+            </div>
+
+
+
+
+
+
+            <div class="col-md-6">
+
+
+                <label class="form-label fw-semibold">
+
+                    Transport Allowance
+
+                </label>
+
+
+                @Html.TextBoxFor(
+                x => x.TransportAllowance,
+                new
+                {
+                    @class = "form-control",
+                    type = "number"
+                })
+
+
+            </div>
+
+
+
+
+
+
+
+            <div class="col-md-6">
+
+
+                <label class="form-label fw-semibold">
+
+                    Bonus Amount
+
+                </label>
+
+
+                @Html.TextBoxFor(
+                x => x.BonusAmount,
+                new
+                {
+                    @class = "form-control",
+                    type = "number"
+                })
+
+
+            </div>
+
+
+
+
+
+
+
+            <div class="col-md-6">
+
+
+                <label class="form-label fw-semibold">
+
+                    Tax Percentage
+
+                </label>
+
+
+                @Html.TextBoxFor(
+                x => x.TaxPercentage,
+                new
+                {
+                    @class = "form-control",
+                    type = "number"
+                })
+
+
+            </div>
+
+
+
+
+
+
+
+
+            <div class="col-md-6">
+
+
+                <label class="form-label fw-semibold">
+
+                    Effective Date
+
+                </label>
+
+
+                @Html.TextBoxFor(
+                x => x.EffectiveDate,
+                "{0:yyyy-MM-dd}",
+                new
+                {
+                    @class = "form-control",
+                    type = "date"
+                })
+
+
+            </div>
+
+
+
+
+
+
+
+            <div class="col-md-6">
+
+
+                <label class="form-label fw-semibold d-block">
+
+                    Status
+
+                </label>
+
+
+
+                <div class="form-check form-switch mt-2">
+
+
+                    @Html.CheckBoxFor(
+                    x => x.IsActive,
+                    new
+                    {
+                        @class = "form-check-input"
+                    })
+
+
+                    <label class="form-check-label">
+
+                        Active Salary
+
+                    </label>
+
+
+                </div>
+
+
+
+            </div>
+
+
+
+
+        </div>
+
+
+
+
+
+
+
+        <div class="text-end mt-4">
+
+
+            <button type="submit"
+                    class="btn btn-primary">
+
+
+                <i class="fa-solid fa-save me-2"></i>
+
+                Update Salary
+
+
+            </button>
+
+
+        </div>
+
+
+
+    }
+
+
+
+</div>
